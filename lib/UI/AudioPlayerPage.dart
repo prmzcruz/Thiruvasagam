@@ -48,6 +48,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
         await player.resume();
       } else {
         _showToast('No internet connection');
+        print('new change');
       }
     });
     loadJsonData();
