@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
+import 'package:thiruvasagam/UI/AudioBackground/AudioplayerSingleton.dart';
+import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/model/modelclass.dart';
 import 'package:lottie/lottie.dart';
 
@@ -15,43 +16,44 @@ class AudioPlayerPage extends StatefulWidget {
   final int id;
   final String thumblineimg;
 
-  const AudioPlayerPage(
-      {Key? key,
-        required this.audioUrl,
-        required this.id,
-        required this.thumblineimg})
-      : super(key: key);
+  const AudioPlayerPage({
+    Key? key,
+    required this.audioUrl,
+    required this.id,
+    required this.thumblineimg,
+  }) : super(key: key);
 
   @override
   State<AudioPlayerPage> createState() => _AudioPlayerPageState();
 }
 
-class _AudioPlayerPageState extends State<AudioPlayerPage> {
-  late AudioPlayer player = AudioPlayer();
+class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingObserver {
+  late final AudioPlayerSingleton audioPlayerSingleton = AudioPlayerSingleton();
   List<Location> locations = [];
-  List<String> locationNames = [];
-  int currentId = 0;
   String image = '';
   String name = '';
   bool offlineaudio = false;
-  late AudioHandler _audioHandler;
 
   @override
   void initState() {
     super.initState();
-    player = AudioPlayer();
-    player.setReleaseMode(ReleaseMode.stop);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (await _checkInternetConnection()) {
-        offlineaudio = true;
-        await player.setSourceUrl(widget.audioUrl);
-        await player.resume();
-      } else {
-        _showToast('No internet connection');
-        print('new change');
-      }
-    });
+    WidgetsBinding.instance.addObserver(this);
+    _initializeAudio();
     loadJsonData();
+  }
+
+  Future<void> _initializeAudio() async {
+    if (await _checkInternetConnection()) {
+      offlineaudio = true;
+      await audioPlayerSingleton.init(widget.audioUrl, locations, widget.id);
+      await audioPlayerSingleton.player.resume();
+      setState(() {
+        image = locations[audioPlayerSingleton.currentId].thumbnailimg;
+        name = locations[audioPlayerSingleton.currentId].name;
+      });
+    } else {
+      _showToast('No internet connection');
+    }
   }
 
   Future<bool> _checkInternetConnection() async {
@@ -71,8 +73,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     );
   }
 
-
-
   Future<void> loadJsonData() async {
     String data = await rootBundle.loadString('assets/locations.json');
     List<dynamic> jsonList = json.decode(data);
@@ -80,70 +80,121 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
     if (jsonList.isNotEmpty) {
       setState(() {
         locations = jsonList.map((json) => Location.fromJson(json)).toList();
-        locationNames = locations.map((location) => location.name).toList();
-        currentId =
-            locations.indexWhere((location) => location.id == widget.id);
-        image = locations[currentId].thumbnailimg;
-        name = locations[currentId].name;
+        AudioPlayerSingleton().init(widget.audioUrl, locations, widget.id); // Initialize player
+
+        image = locations[AudioPlayerSingleton().currentId].thumbnailimg;
+        name = locations[AudioPlayerSingleton().currentId].name;
       });
     }
   }
 
-  Future<void> moveToNextAudio() async {
-    if (currentId < locations.length - 1) {
-
-      setState(() {
-        currentId++;
-        image = locations[currentId].thumbnailimg; // Update thumbnail image
-        name = locations[currentId].name;
-      });
-      try{
-
-        await player.setSourceUrl(locations[currentId].audioUrl);
-        // if(player.state != PlayerState.playing && player.state != PlayerState.completed){
-        //
-        // }
-        await player.resume();
-
-      }catch(e){
-        print('Error setting audio source: $e');
-      }
-
-    }
-  }
-
-  Future<void> moveToPreviousAudio() async {
-    if (currentId > 0) {
-      setState(() {
-        currentId--;
-        image = locations[currentId].thumbnailimg; // Update thumbnail image
-        name = locations[currentId].name;
-      });
-      await player.setSourceUrl(locations[currentId].audioUrl);
-      await player.resume();
-    }
-  }
 
   @override
   void dispose() {
-    player.dispose();
+    audioPlayerSingleton.dispose(); // Dispose the player on widget dispose
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      /*appBar: AppBar(
-        centerTitle: false,
-        leadingWidth: 25,
-        title: Text(name,style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color: Colors.blue,fontFamily: 'MeeraInimai-Regular'),),
-      ),*/
-      body: PlayerWidget(
-        name: name,
-        thumblineimg: image,
-        player: player,
-        onFastForward: moveToNextAudio,
-        onRewind: moveToPreviousAudio, offlineaudio:offlineaudio,isFirstAudio: currentId == 0,isLastAudio: currentId == locations.length - 1,),
+    return WillPopScope(
+      onWillPop: () async {
+        final currentLocation = locations[audioPlayerSingleton.currentId];
+
+        Provider.of<AudioPlayerProvider>(context, listen: false)
+            .playSong(
+          //widget.audioUrl,                // Use the current audio URL
+          currentLocation.name,            // Dynamically pass the song name
+          currentLocation.thumbnailimg,    // Dynamically pass the image URL
+          //Duration(minutes: 3, seconds: 45),  // You can dynamically set the duration if available
+        );
+        Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
+        return true;
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            PlayerWidget(
+              name: name,
+              thumblineimg: image,
+              player: audioPlayerSingleton.player,
+              onFastForward: audioPlayerSingleton.moveToNextAudio,
+              onRewind: audioPlayerSingleton.moveToPreviousAudio,
+              offlineaudio: offlineaudio,
+              isFirstAudio: audioPlayerSingleton.currentId == 0,
+              isLastAudio: audioPlayerSingleton.currentId == locations.length - 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+
+// MiniPlayer widget to display at the bottom when minimized
+class MiniPlayer1 extends StatelessWidget {
+  final AudioPlayer player;
+  final String name;
+  final String image;
+  final VoidCallback onClose;
+
+  const MiniPlayer1({
+    Key? key,
+    required this.player,
+    required this.name,
+    required this.image,
+    required this.onClose,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.blueGrey[800],
+      height: 70,
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          image.isNotEmpty
+              ? Image.network(
+            image,
+            height: 50,
+            width: 50,
+            fit: BoxFit.cover,
+          )
+              : const Icon(Icons.music_note, size: 50),
+          const SizedBox(width: 10),
+          // Song name
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // Play/pause button
+          IconButton(
+            icon: player.state == PlayerState.playing
+                ? const Icon(Icons.pause, color: Colors.white)
+                : const Icon(Icons.play_arrow, color: Colors.white),
+            onPressed: () {
+              if (player.state == PlayerState.playing) {
+                player.pause();
+              } else {
+                player.resume();
+              }
+            },
+          ),
+          // Close button
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: onClose,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -152,15 +203,15 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> {
 
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
-  final bool isFirstAudio;
-  final bool isLastAudio;
+  bool isFirstAudio;
+  bool isLastAudio;
   final Function onRewind;
   final Function onFastForward;
-  final String name;
-  final String? thumblineimg;
+  String name;
+  String? thumblineimg;
   final bool offlineaudio;
 
-  const PlayerWidget({
+   PlayerWidget({
     Key? key,
     required this.player,
     required this.isFirstAudio,
@@ -180,6 +231,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
   PlayerState? _playerState;
   Duration? _duration;
   Duration? _position;
+  final audioPlayerSingleton = AudioPlayerSingleton();
 
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
@@ -232,15 +284,26 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
     player.setVolume(value);
   }
 
-  @override
-  void dispose() {
-    _durationSubscription?.cancel();
-    _positionSubscription?.cancel();
-    _playerCompleteSubscription?.cancel();
-    _playerStateChangeSubscription?.cancel();
-    _controller.dispose();
-    player.dispose();
-    super.dispose();
+  void _updateAudioDetails() {
+    setState(() {
+      widget.thumblineimg = audioPlayerSingleton.locations[audioPlayerSingleton.currentId].thumbnailimg;
+      widget.name = audioPlayerSingleton.locations[audioPlayerSingleton.currentId].name;
+    });
+  }
+
+  Future<void> handleRewind() {
+    return audioPlayerSingleton.moveToPreviousAudio().then((details) {
+      // Update image and name after rewinding
+      _updateAudioDetails();
+      widget.onRewind(); // Call the onRewind callback
+    });
+  }
+
+  Future<void> handleNext() {
+    return audioPlayerSingleton.moveToNextAudio().then((details) {
+      // Update image and name after moving to next audio
+      _updateAudioDetails();
+    });
   }
 
   @override
@@ -292,7 +355,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
-                    widget.name,
+                    widget.name, // Updated name from the current audio
                     style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
@@ -305,9 +368,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   child: Padding(
                     padding: EdgeInsets.all(15),
                     child: widget.thumblineimg != null && widget.thumblineimg!.isNotEmpty
-                        ? widget.offlineaudio
                         ? Image.network(
-                      widget.thumblineimg!,
+                      widget.thumblineimg!, // Updated image from the current audio
                       fit: BoxFit.cover,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {
@@ -321,10 +383,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                         }
                       },
                     )
-                        : SizedBox()
-                        : SizedBox(),
+                        : const SizedBox(),
                   ),
                 ),
+
                 Slider(
                   onChanged: (value) {
                     final duration = _duration;
@@ -387,7 +449,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   children: [
                     IconButton(
                       key: const Key('rewind_button'),
-                      onPressed: widget.isFirstAudio ? null : widget.onRewind as void Function()?,
+                      onPressed: widget.isFirstAudio ? null : handleRewind,
                       iconSize: MediaQuery.of(context).size.width * 0.1,
                       icon: const Icon(
                         Icons.fast_rewind,
@@ -420,7 +482,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     SizedBox(width: 15),
                     IconButton(
                       key: const Key('fast_forward_button'),
-                      onPressed: widget.isLastAudio ? null : widget.onFastForward as void Function()?,
+                      onPressed: widget.isLastAudio ? null : handleNext,
                       iconSize: MediaQuery.of(context).size.width * 0.1,
                       icon: const Icon(
                         Icons.fast_forward,
@@ -436,27 +498,19 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     const Padding(
                       padding: EdgeInsets.only(left: 10),
                       child: Icon(
-                        Icons.volume_mute,
-                        color: Colors.white,
-                        size: 30,
+                        Icons.volume_up,
+                        color: Colors.black,
                       ),
                     ),
                     Expanded(
                       child: Slider(
                         value: _volume,
-                        min: 0.0,
-                        max: 1.0,
-                        onChanged: _setVolume,
+                        min: 0,
+                        max: 1,
+                        divisions: 10,
                         activeColor: Colors.blueAccent,
                         inactiveColor: Colors.grey,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 10),
-                      child: Icon(
-                        Icons.volume_up_sharp,
-                        color: Colors.white,
-                        size: 30,
+                        onChanged: _setVolume,
                       ),
                     ),
                   ],
@@ -467,31 +521,6 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
         );
       },
     );
-  }
-
-  void _initStreams() {
-    _durationSubscription = player.onDurationChanged.listen((duration) {
-      setState(() => _duration = duration);
-    });
-
-    _positionSubscription =
-        player.onPositionChanged.listen((p) => setState(() => _position = p));
-
-    _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
-      setState(() {
-        _playerState = PlayerState.stopped;
-        print('song complete');
-        setState(() {
-          widget.onFastForward();
-        });
-      });
-    });
-
-    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _playerState = state;
-      });
-    });
   }
 
   Future<void> _play() async {
@@ -509,6 +538,83 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
       _controller.stop(); // Stop the animation
     });
   }
+
+/*  @override
+  void dispose() {
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerStateChangeSubscription?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }*/
+
+  /*void _initStreams() {
+    _durationSubscription = player.onDurationChanged.listen((duration) {
+      setState(() {
+        _duration = duration;
+      });
+    });
+
+    _positionSubscription = player.onPositionChanged.listen((position) {
+      if(mounted){
+        setState(() {
+          _position = position;
+        });
+      }
+
+    });
+
+    _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
+      handleNext(); // Automatically move to next audio when current is complete
+    });
+
+    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((state) {
+      setState(() {
+        _playerState = state;
+      });
+    });
+  }*/
+
+  @override
+  void dispose() {
+    // Cancel the subscriptions to avoid calling setState on a disposed widget
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerStateChangeSubscription?.cancel();
+
+    // Ensure to call super.dispose to complete the disposal process
+    super.dispose();
+  }
+
+  void _initStreams() {
+    _durationSubscription = player.onDurationChanged.listen((duration) {
+      if (mounted) {
+        setState(() {
+          _duration = duration;
+        });
+      }
+    });
+
+    _positionSubscription = player.onPositionChanged.listen((position) {
+      if (mounted) {
+        setState(() {
+          _position = position;
+        });
+      }
+    });
+
+    _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
+      handleNext(); // Automatically move to next audio when current is complete
+    });
+
+    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() {
+          _playerState = state;
+        });
+      }
+    });
+  }
 }
-
-

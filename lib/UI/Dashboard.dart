@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:thiruvasagam/UI/MainScree.dart';
 import 'package:thiruvasagam/UI/contentPage.dart';
 import 'package:thiruvasagam/model/modelclass.dart';
 import 'package:path_provider/path_provider.dart';
@@ -272,109 +273,111 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildStylishDrawer(),
-      backgroundColor: Colors.deepOrangeAccent,
-      body: Column(
-        children: [
-          Container(
-            child: const Padding(
-              padding: EdgeInsets.all(30),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'எட்டாம்-திருமுறை-திருவாசகம்',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                          fontFamily: 'MeeraInimai-Regular'
+    return MainScreen(
+      child: Scaffold(
+        drawer: _buildStylishDrawer(),
+        backgroundColor: Colors.deepOrangeAccent,
+        body: Column(
+          children: [
+            Container(
+              child: const Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'எட்டாம்-திருமுறை-திருவாசகம்',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            fontFamily: 'MeeraInimai-Regular'
+                        ),
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'திருவாசகத்துக்கு உருகார் ஒரு வாசகத்திற்கும் உருகார்',
-                      style: TextStyle(
-                          fontSize: 12,
-                         fontWeight: FontWeight.bold,
-                          fontFamily: 'MeeraInimai-Regular'
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        'திருவாசகத்துக்கு உருகார் ஒரு வாசகத்திற்கும் உருகார்',
+                        style: TextStyle(
+                            fontSize: 12,
+                           fontWeight: FontWeight.bold,
+                            fontFamily: 'MeeraInimai-Regular'
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Container(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 10,
-                  right: 10,
-                ),
-                child: Card(
-                  color: Colors.white70,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: locations.length,
-                    itemBuilder: (context, index) {
-                      final location = locations[index];
-                      return Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              print('text');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ContentPage(
-                                    id:location.id,
-                                    name:location.name,
-                                    audioUrl: location.audioUrl,
-                                    videoUrl: location.videoUrl,
-                                    desc: location.desc,
-                                    thumbline:location.thumbnailimg,
-                                    videoId:location.videoid,
+            Expanded(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                  ),
+                  child: Card(
+                    color: Colors.white70,
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: locations.length,
+                      itemBuilder: (context, index) {
+                        final location = locations[index];
+                        return Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                print('text');
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ContentPage(
+                                      id:location.id,
+                                      name:location.name,
+                                      audioUrl: location.audioUrl,
+                                      videoUrl: location.videoUrl,
+                                      desc: location.desc,
+                                      thumbline:location.thumbnailimg,
+                                      videoId:location.videoid,
+                                    ),
                                   ),
+                                );
+                              },
+                              child: ListTile(
+                                title: Text(location.name,style: TextStyle(
+                                  fontFamily: 'MeeraInimai-Regular',
+                                    fontSize: 16,fontWeight: FontWeight.w600
                                 ),
-                              );
-                            },
-                            child: ListTile(
-                              title: Text(location.name,style: TextStyle(
-                                fontFamily: 'MeeraInimai-Regular',
-                                  fontSize: 16,fontWeight: FontWeight.w600
-                              ),
-                              ),
-                              trailing: const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 15,
-                                color: Colors.grey,
+                                ),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 15,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
-                          ),
-                          if (index < locations.length - 1)
-                            const Padding(
-                                padding: EdgeInsets.only(left: 10, right: 10),
-                                child: Divider(
-                                  thickness: 0.5,
-                                  color: Colors.black12,
-                                )), // Add Divider for all but the last item
-                        ],
-                      );
-                    },
+                            if (index < locations.length - 1)
+                              const Padding(
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  child: Divider(
+                                    thickness: 0.5,
+                                    color: Colors.black12,
+                                  )), // Add Divider for all but the last item
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

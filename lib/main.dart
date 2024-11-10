@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:thiruvasagam/UI/AudioPlayerPage.dart';
-import 'package:thiruvasagam/UI/Audioplayerprovider.dart';
+import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Dashboard.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
 
@@ -58,12 +58,23 @@ class MainLayout extends StatelessWidget {
               ),
               // Mini Player
               if (audioProvider.isMiniPlayerVisible)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: MiniPlayer(
-                    player: audioProvider.audioPlayer,
-                    onClose: () => audioProvider.closeMiniPlayer(),
-                  ),
+                Consumer<AudioPlayerProvider>(
+                  builder: (context, audioPlayerProvider, child) {
+                    return audioPlayerProvider.isMiniPlayerVisible
+                        ? Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: MiniPlayer(
+                        player: audioPlayerProvider.audioPlayer,
+                        songName: "Your Song Name", // Pass the song name
+                        imageUrl: "https://example.com/song-thumbnail.jpg", // Pass the image URL
+                        //songDuration: Duration(minutes: 3, seconds: 45), // Pass song duration
+                        onClose: audioPlayerProvider.hideMiniPlayer,
+                      ),
+                    )
+                        : SizedBox.shrink();
+                  },
                 ),
             ],
           ),

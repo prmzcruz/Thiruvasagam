@@ -5,7 +5,6 @@ class MyAudioHandler extends BaseAudioHandler {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   MyAudioHandler() {
-    // Listen to the audio player's state and update the AudioService state
     _audioPlayer.onPlayerStateChanged.listen((state) {
       playbackState.add(playbackStateFor(state));
     });
@@ -22,7 +21,6 @@ class MyAudioHandler extends BaseAudioHandler {
     await _audioPlayer.pause();
   }
 
-  // Stop audio
   Future<void> stop() async {
     await _audioPlayer.stop();
   }
