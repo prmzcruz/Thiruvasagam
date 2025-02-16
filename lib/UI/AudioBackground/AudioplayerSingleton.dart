@@ -19,6 +19,15 @@ class AudioPlayerSingleton {
     await player.setSourceUrl(audioUrl);
   }
 
+
+  Future<void> play() async {
+    await player.resume();
+  }
+
+  Future<void> pause() async {
+    await player.pause();
+  }
+
   Future<Map<String, String>> moveToNextAudio() async {
     if (currentId < locations.length - 1) {
       currentId++;

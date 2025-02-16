@@ -21,13 +21,13 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final audioPlayerProvider = Provider.of<AudioPlayerProvider>(context);
     return Container(
       color: Colors.blueGrey[800],
       height: 70,
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          // Display album art or song thumbnail
           Image.network(
             imageUrl,
             width: 50,
@@ -55,11 +55,15 @@ class MiniPlayer extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Provider.of<AudioPlayerProvider>(context).audioPlayer.state == PlayerState.playing
+            icon: audioPlayerProvider.playerState == PlayerState.playing
                 ? const Icon(Icons.pause, color: Colors.white)
                 : const Icon(Icons.play_arrow, color: Colors.white),
             onPressed: () {
-              Provider.of<AudioPlayerProvider>(context, listen: false).togglePlayPause();
+              if (audioPlayerProvider.playerState == PlayerState.playing) {
+                audioPlayerProvider.pausePlayer();
+              } else {
+                audioPlayerProvider.playPlayer();
+              }
             },
           ),
           IconButton(

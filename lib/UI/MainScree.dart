@@ -28,12 +28,12 @@ class MainScreen extends StatelessWidget {
                 child: MiniPlayer(
                   player: audioPlayerProvider.audioPlayer,
                   songName: audioPlayerProvider.songName,  // Pass the dynamic song name
-                  imageUrl: audioPlayerProvider.imageUrl,  // Pass the dynamic image URL
+                  imageUrl: audioPlayerProvider.imageUrl, // Pass the dynamic image URL
                   //songDuration: audioPlayerProvider.songDuration,  // Pass the dynamic song duration
                   onClose: audioPlayerProvider.hideMiniPlayer,
                 ),
               )
-                  : SizedBox.shrink();
+                  : const SizedBox.shrink();
             },
           ),
         ],

@@ -88,6 +88,16 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     }
   }
 
+  Future <void>_showMiniPlayer() async{
+    final currentLocation = locations[audioPlayerSingleton.currentId];
+    Provider.of<AudioPlayerProvider>(context, listen: false).playSong(
+      currentLocation.name,
+      currentLocation.thumbnailimg,
+    );
+    Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
+  }
+
+
 
   @override
   void dispose() {
@@ -100,16 +110,17 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        final currentLocation = locations[audioPlayerSingleton.currentId];
-
-        Provider.of<AudioPlayerProvider>(context, listen: false)
-            .playSong(
-          //widget.audioUrl,                // Use the current audio URL
-          currentLocation.name,            // Dynamically pass the song name
-          currentLocation.thumbnailimg,    // Dynamically pass the image URL
-          //Duration(minutes: 3, seconds: 45),  // You can dynamically set the duration if available
-        );
-        Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
+        // final currentLocation = locations[audioPlayerSingleton.currentId];
+        //
+        // Provider.of<AudioPlayerProvider>(context, listen: false)
+        //     .playSong(
+        //   //widget.audioUrl,                // Use the current audio URL
+        //   currentLocation.name,            // Dynamically pass the song name
+        //   currentLocation.thumbnailimg,    // Dynamically pass the image URL
+        //   //Duration(minutes: 3, seconds: 45),  // You can dynamically set the duration if available
+        // );
+        // Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
+        _showMiniPlayer();
         return true;
       },
       child: Scaffold(
@@ -124,6 +135,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
               offlineaudio: offlineaudio,
               isFirstAudio: audioPlayerSingleton.currentId == 0,
               isLastAudio: audioPlayerSingleton.currentId == locations.length - 1,
+              miniPlayer: _showMiniPlayer,
             ),
           ],
         ),
@@ -131,72 +143,6 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     );
   }
 
-}
-
-
-// MiniPlayer widget to display at the bottom when minimized
-class MiniPlayer1 extends StatelessWidget {
-  final AudioPlayer player;
-  final String name;
-  final String image;
-  final VoidCallback onClose;
-
-  const MiniPlayer1({
-    Key? key,
-    required this.player,
-    required this.name,
-    required this.image,
-    required this.onClose,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blueGrey[800],
-      height: 70,
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          image.isNotEmpty
-              ? Image.network(
-            image,
-            height: 50,
-            width: 50,
-            fit: BoxFit.cover,
-          )
-              : const Icon(Icons.music_note, size: 50),
-          const SizedBox(width: 10),
-          // Song name
-          Expanded(
-            child: Text(
-              name,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // Play/pause button
-          IconButton(
-            icon: player.state == PlayerState.playing
-                ? const Icon(Icons.pause, color: Colors.white)
-                : const Icon(Icons.play_arrow, color: Colors.white),
-            onPressed: () {
-              if (player.state == PlayerState.playing) {
-                player.pause();
-              } else {
-                player.resume();
-              }
-            },
-          ),
-          // Close button
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: onClose,
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 
@@ -210,8 +156,9 @@ class PlayerWidget extends StatefulWidget {
   String name;
   String? thumblineimg;
   final bool offlineaudio;
+  final Future<void> Function() miniPlayer;
 
-   PlayerWidget({
+  PlayerWidget({
     Key? key,
     required this.player,
     required this.isFirstAudio,
@@ -221,6 +168,7 @@ class PlayerWidget extends StatefulWidget {
     required this.name,
     this.thumblineimg,
     this.offlineaudio = false,
+    required this.miniPlayer,
   }) : super(key: key);
 
   @override
@@ -334,6 +282,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     children: [
                       IconButton(
                         onPressed: () {
+                          widget.miniPlayer;
                           Navigator.pop(context);
                         },
                         icon: Icon(Icons.arrow_back),
@@ -449,15 +398,15 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   children: [
                     IconButton(
                       key: const Key('rewind_button'),
-                      onPressed: widget.isFirstAudio ? null : handleRewind,
+                      onPressed: handleRewind, //widget.isFirstAudio ? null : handleRewind
                       iconSize: MediaQuery.of(context).size.width * 0.1,
                       icon: const Icon(
                         Icons.fast_rewind,
                         size: 40,
                       ),
-                      color: widget.isFirstAudio ? Colors.grey : Colors.black,
+                      color: Colors.black, //widget.isFirstAudio ? Colors.grey : Colors.black
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                     IconButton(
                       key: const Key('play_pause_button'),
                       onPressed: () {
@@ -548,7 +497,6 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
     _controller.dispose();
     super.dispose();
   }*/
-
   /*void _initStreams() {
     _durationSubscription = player.onDurationChanged.listen((duration) {
       setState(() {
