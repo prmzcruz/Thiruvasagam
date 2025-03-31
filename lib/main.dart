@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:thiruvasagam/UI/AudioPlayerPage.dart';
+import 'package:thiruvasagam/UI/AudioBackground/notification_player.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Dashboard.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
 
 
 Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
 
+  await requestNotificationPermission();
+  //await BackgroundAudioService.initialize();
 
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.blue, // navigation bar color
@@ -22,6 +26,12 @@ Future<void> main() async{
     ),
   );
 
+}
+
+Future<void> requestNotificationPermission() async {
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
 }
 
 class MyApp extends StatelessWidget {

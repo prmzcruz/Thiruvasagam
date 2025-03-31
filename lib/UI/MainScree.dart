@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';  // Assuming you are using Provider for state management
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
+
+import 'AudioPlayerPage.dart';
 // import 'audio_player_provider.dart';  // Import your AudioPlayerProvider here
 // import 'mini_player.dart';  // Import your MiniPlayer widget here
 
@@ -25,12 +27,20 @@ class MainScreen extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: MiniPlayer(
-                  player: audioPlayerProvider.audioPlayer,
-                  songName: audioPlayerProvider.songName,  // Pass the dynamic song name
-                  imageUrl: audioPlayerProvider.imageUrl, // Pass the dynamic image URL
-                  //songDuration: audioPlayerProvider.songDuration,  // Pass the dynamic song duration
-                  onClose: audioPlayerProvider.hideMiniPlayer,
+                child: GestureDetector(
+                  onTap: (){
+                    print('hello tap');
+                    print('audiourl : ${audioPlayerProvider.songURL} , id ${audioPlayerProvider.songId} thumbnail : ${audioPlayerProvider.imageUrl}');
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> AudioPlayerPage(audioUrl: audioPlayerProvider.songURL, id: audioPlayerProvider.songId, thumblineimg: audioPlayerProvider.imageUrl)));
+                  },
+                  child: MiniPlayer(
+                    player: audioPlayerProvider.audioPlayer,
+                    songName: audioPlayerProvider.songName,  // Pass the dynamic song name
+                    imageUrl: audioPlayerProvider.imageUrl, // Pass the dynamic image URL
+                    //songDuration: audioPlayerProvider.songDuration,  // Pass the dynamic song duration
+                    onClose: audioPlayerProvider.hideMiniPlayer,
+                  ),
                 ),
               )
                   : const SizedBox.shrink();

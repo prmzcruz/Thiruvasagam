@@ -448,8 +448,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.white, // Background color
-                    onPrimary: Colors.deepOrange, // Text color
+                    foregroundColor: Colors.deepOrange, backgroundColor: Colors.white, // Text color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

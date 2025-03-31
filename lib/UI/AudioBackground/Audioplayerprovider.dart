@@ -25,6 +25,15 @@ class AudioPlayerProvider extends ChangeNotifier {
   Duration get songDuration => _songDuration;
   PlayerState get playerState => _audioPlayerSingleton.player.state;
 
+  int get songId => _audioPlayerSingleton.locations.isNotEmpty
+      ? _audioPlayerSingleton.locations[_audioPlayerSingleton.currentId].id
+      : 0;
+
+  String get songURL => _audioPlayerSingleton.locations.isNotEmpty
+      ? _audioPlayerSingleton.locations[_audioPlayerSingleton.currentId].audioUrl
+      : '';
+
+
 
 
   AudioPlayerProvider() {

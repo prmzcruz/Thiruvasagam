@@ -11,6 +11,8 @@ import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/model/modelclass.dart';
 import 'package:lottie/lottie.dart';
 
+import 'AudioBackground/notification_player.dart';
+
 class AudioPlayerPage extends StatefulWidget {
   final String audioUrl;
   final int id;
@@ -40,6 +42,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     WidgetsBinding.instance.addObserver(this);
     _initializeAudio();
     loadJsonData();
+    //BackgroundAudioService.startService();
   }
 
   Future<void> _initializeAudio() async {
@@ -157,6 +160,7 @@ class PlayerWidget extends StatefulWidget {
   String? thumblineimg;
   final bool offlineaudio;
   final Future<void> Function() miniPlayer;
+
 
   PlayerWidget({
     Key? key,
