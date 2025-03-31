@@ -226,7 +226,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
       }
     });
     // Start playing initially
-    _play();
+    _play(); //play
   }
 
   void _setVolume(double value) {
