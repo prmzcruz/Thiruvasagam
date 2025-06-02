@@ -40,7 +40,7 @@ class AudioPlayerSingleton {
         'image': locations[currentId].thumbnailimg,
       };
     }
-    return {}; // Return empty map if there's no next audio
+    return {};
   }
 
   Future<Map<String, String>> moveToPreviousAudio() async {

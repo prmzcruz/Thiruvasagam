@@ -2,7 +2,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:thiruvasagam/UI/AudioBackground/Audiohandler.dart';
 import 'package:thiruvasagam/UI/AudioBackground/AudioplayerSingleton.dart';
 
 class AudioPlayerProvider extends ChangeNotifier {
@@ -73,7 +72,7 @@ class AudioPlayerProvider extends ChangeNotifier {
     _songName = songName;
     _imageUrl = imageUrl;
     //await _audioPlayer.setSource(UrlSource(url));
-   // _audioPlayer.resume(); // Use resume() instead of play(url)
+    // _audioPlayer.resume(); // Use resume() instead of play(url)
     notifyListeners();
   }
 

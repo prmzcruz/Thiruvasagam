@@ -28,50 +28,59 @@ class MiniPlayer extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
-          Image.network(
-            imageUrl,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              imageUrl.isNotEmpty ? imageUrl : 'https://via.placeholder.com/50',
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.music_note, size: 50, color: Colors.white),
+            ),
           ),
           const SizedBox(width: 10),
-          // Display song name and duration
+          // Use Flexible to prevent overflow
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  songName,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Flexible(
+                  child: Text(
+                    songName,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                /*Text(
-                  "${songDuration.inMinutes}:${(songDuration.inSeconds % 60).toString().padLeft(2, '0')}",
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),*/
+                // Optional duration text
               ],
             ),
           ),
-          IconButton(
-            icon: audioPlayerProvider.playerState == PlayerState.playing
-                ? const Icon(Icons.pause, color: Colors.white)
-                : const Icon(Icons.play_arrow, color: Colors.white),
-            onPressed: () {
-              if (audioPlayerProvider.playerState == PlayerState.playing) {
-                audioPlayerProvider.pausePlayer();
-              } else {
-                audioPlayerProvider.playPlayer();
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: onClose,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: audioPlayerProvider.playerState == PlayerState.playing
+                    ? const Icon(Icons.pause, color: Colors.white)
+                    : const Icon(Icons.play_arrow, color: Colors.white),
+                onPressed: () {
+                  if (audioPlayerProvider.playerState == PlayerState.playing) {
+                    audioPlayerProvider.pausePlayer();
+                  } else {
+                    audioPlayerProvider.playPlayer();
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: onClose,
+              ),
+            ],
           ),
         ],
       ),
     );
+
   }
 }

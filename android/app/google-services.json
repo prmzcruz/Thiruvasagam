@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "378328363075",
+    "project_id": "sivavasagam-android",
+    "storage_bucket": "sivavasagam-android.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:378328363075:android:d2422a3157d778b225a4f6",
+        "android_client_info": {
+          "package_name": "com.sivavasakam.shivam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLfIPPVmTTzb6x-bVV5xA3FpHxaWhbLUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

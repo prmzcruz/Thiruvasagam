@@ -1,20 +1,153 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:thiruvasagam/UI/AudioBackground/notification_player.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Dashboard.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
 
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Handle background message
+  print('Handling a background message: ${message.messageId}');
+  RemoteNotification? notification = message.notification;
+  if (notification != null) {
+    print('Notification Title: ${notification.title}');
+    print('Notification Body: ${notification.body}');
+  }
+}
+
+Future<void> backgroundHandler(RemoteMessage message) async {
+  // print(message.notification?.title);
+  // print(message.data.toString());
+  await Firebase.initializeApp(); //--
+}
+
+
 Future<void> main() async{
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
   WidgetsFlutterBinding.ensureInitialized();
 
+  HttpOverrides.global = MyHttpOverrides();
+  await Permission.notification.isDenied.then((value) {
+    if (value) {
+      Permission.notification.request();
+    }
+  });
   await requestNotificationPermission();
-  //await BackgroundAudioService.initialize();
+  await Firebase.initializeApp();
+  FirebaseMessaging firebaseFCM = FirebaseMessaging.instance;
+  FirebaseMessaging.instance.getInitialMessage();
 
+  var initialzationSettingsAndroid =
+  const AndroidInitializationSettings('@mipmap/ic_launcher');
+  var initializationSettings =
+  InitializationSettings(android: initialzationSettingsAndroid,);
+  flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onSelectNotification: (payload) async {
+        if (payload != null && payload.isNotEmpty) {
+          var notifytsqid = payload.substring(payload.indexOf(':') + 3);
+
+          print("flutterLocalNotification payload = ${payload.toString()}");
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setBool('fromnotify', true);
+          // if (appstatus == true) {
+          /*navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (_) => const MyTabPage(selectedtab: 2, title: '',)),
+          );*/
+          // } else {
+          //   // Fluttertoast.showToast(msg:AppLocalizations.of(context)!.id);
+          // }
+        } else {
+          print("No data in flutterLocalNotificationsPlugin payload");
+        }
+      });
+  firebaseFCM.getToken().then((token) {
+    assert(token != null);
+  });
+  String token;
+  token = (await firebaseFCM.getToken())!;
+  print("fcm token =  $token");
+  if (Platform.isIOS) {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
+  }
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('onmessage..');
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+    AppleNotification? apple = message.notification?.apple;
+    if (Platform.isAndroid) {
+      if (notification != null && android != null) {
+        print("push onMessage = ${notification.body.toString()}");
+
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title, // Title of our notification
+            notification.body, // Body of our notification
+            const NotificationDetails(
+                android: AndroidNotificationDetails(
+                    "1",
+                    "sivavasagam",
+                    channelDescription: "sivavasagam",
+                    importance: Importance.high,
+                    priority: Priority.high,
+                    //styleInformation: BigTextStyleInformation("null"),
+                    largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher')
+                ),
+               ),
+            // payload: message.data["view"]);
+            payload: notification.body.toString());
+        // String? data = notification.title;
+        // print("notification data = $data");
+      }
+    }
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+    print('onmessageopenedapp..');
+    RemoteNotification? notification = message.notification;
+
+    flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification?.title, // Title of our notification
+        notification?.body, // Body of our notification
+        const NotificationDetails(
+            android: AndroidNotificationDetails(
+                "1",
+                "sivavasagam",
+                channelDescription: "sivavasagam",
+                importance: Importance.high,
+                priority: Priority.high,
+                largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher')
+            ),
+        ),
+        payload: notification?.body);
+
+    /*navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => const MyTabPage(selectedtab: 2, title: '',)),
+    );*/
+  });
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.blue, // navigation bar color
     statusBarColor: Colors.white, // status bar color

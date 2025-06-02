@@ -11,7 +11,8 @@ import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/model/modelclass.dart';
 import 'package:lottie/lottie.dart';
 
-import 'AudioBackground/notification_player.dart';
+import '../model/lyrics.dart';
+
 
 class AudioPlayerPage extends StatefulWidget {
   final String audioUrl;
@@ -35,6 +36,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
   String image = '';
   String name = '';
   bool offlineaudio = false;
+  Map<int, List<LyricLine>> lyricsMap = {};
 
   @override
   void initState() {
@@ -42,7 +44,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     WidgetsBinding.instance.addObserver(this);
     _initializeAudio();
     loadJsonData();
-    //BackgroundAudioService.startService();
+    lyricsJsonData();
   }
 
   Future<void> _initializeAudio() async {
@@ -91,6 +93,23 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     }
   }
 
+  Future<void> lyricsJsonData() async {
+    String data = await rootBundle.loadString('assets/Lyrics.json');
+    Map<String, dynamic> jsonData = json.decode(data);
+
+    setState(() {
+      lyricsMap.clear();
+      jsonData.forEach((key, value) {
+        int id = int.tryParse(key) ?? 0;
+        if (value is List) {
+          lyricsMap[id] = value.map((e) => LyricLine.fromJson(e)).toList();
+        } else {
+          debugPrint("Skipping id $id because value is not a List: $value");
+        }
+      });
+    });
+  }
+
   Future <void>_showMiniPlayer() async{
     final currentLocation = locations[audioPlayerSingleton.currentId];
     Provider.of<AudioPlayerProvider>(context, listen: false).playSong(
@@ -98,32 +117,25 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
       currentLocation.thumbnailimg,
     );
     Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
+
   }
 
 
 
   @override
   void dispose() {
-    audioPlayerSingleton.dispose(); // Dispose the player on widget dispose
+    //audioPlayerSingleton.dispose(); // Dispose the player on widget dispose
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentLocation = locations[audioPlayerSingleton.currentId];
+    List<LyricLine> lyricsToDisplay = lyricsMap[currentLocation.id] ?? [];
     return WillPopScope(
       onWillPop: () async {
-        // final currentLocation = locations[audioPlayerSingleton.currentId];
-        //
-        // Provider.of<AudioPlayerProvider>(context, listen: false)
-        //     .playSong(
-        //   //widget.audioUrl,                // Use the current audio URL
-        //   currentLocation.name,            // Dynamically pass the song name
-        //   currentLocation.thumbnailimg,    // Dynamically pass the image URL
-        //   //Duration(minutes: 3, seconds: 45),  // You can dynamically set the duration if available
-        // );
-        // Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
-        _showMiniPlayer();
+        await _showMiniPlayer();
         return true;
       },
       child: Scaffold(
@@ -139,6 +151,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
               isFirstAudio: audioPlayerSingleton.currentId == 0,
               isLastAudio: audioPlayerSingleton.currentId == locations.length - 1,
               miniPlayer: _showMiniPlayer,
+              lyrics: lyricsToDisplay,
             ),
           ],
         ),
@@ -160,6 +173,7 @@ class PlayerWidget extends StatefulWidget {
   String? thumblineimg;
   final bool offlineaudio;
   final Future<void> Function() miniPlayer;
+  final List<LyricLine> lyrics;
 
 
   PlayerWidget({
@@ -173,6 +187,7 @@ class PlayerWidget extends StatefulWidget {
     this.thumblineimg,
     this.offlineaudio = false,
     required this.miniPlayer,
+    required this.lyrics,
   }) : super(key: key);
 
   @override
@@ -201,6 +216,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
   AudioPlayer get player => widget.player;
   double _volume = 0.5;
   late AnimationController _controller;
+  int _currentLyricIndex = -1;
+  final ScrollController _scrollController = ScrollController();
 
   String get _remainingTimeText {
     if (_duration != null && _position != null) {
@@ -228,6 +245,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
     // Start playing initially
     _play(); //play
   }
+
+
 
   void _setVolume(double value) {
     setState(() {
@@ -382,7 +401,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     ],
                   ),
                 ),
-                SizedBox(
+                /*SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: MediaQuery.of(context).size.height * 0.25,
                   child: FittedBox(
@@ -395,6 +414,48 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                         _controller.duration = composition.duration;
                       },
                     ),
+                  ),
+                ),*/
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.25,
+                  margin: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: widget.lyrics.isEmpty
+                      ? Center(
+                    child: Text(
+                      "No lyrics available",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                      : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(8),
+                    itemCount: widget.lyrics.length,
+                    itemBuilder: (context, index) {
+                      final lyric = widget.lyrics[index];
+                      bool isActive = index == _currentLyricIndex;
+                      bool isPast = index < _currentLyricIndex;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Text(
+                          lyric.line,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: isActive ? 20 : 16,
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            color: isActive
+                                ? Colors.red
+                                : isPast
+                                ? Colors.white70
+                                : Colors.white,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 Row(
@@ -492,41 +553,6 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
     });
   }
 
-/*  @override
-  void dispose() {
-    _durationSubscription?.cancel();
-    _positionSubscription?.cancel();
-    _playerCompleteSubscription?.cancel();
-    _playerStateChangeSubscription?.cancel();
-    _controller.dispose();
-    super.dispose();
-  }*/
-  /*void _initStreams() {
-    _durationSubscription = player.onDurationChanged.listen((duration) {
-      setState(() {
-        _duration = duration;
-      });
-    });
-
-    _positionSubscription = player.onPositionChanged.listen((position) {
-      if(mounted){
-        setState(() {
-          _position = position;
-        });
-      }
-
-    });
-
-    _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
-      handleNext(); // Automatically move to next audio when current is complete
-    });
-
-    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _playerState = state;
-      });
-    });
-  }*/
 
   @override
   void dispose() {
@@ -535,6 +561,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
     _positionSubscription?.cancel();
     _playerCompleteSubscription?.cancel();
     _playerStateChangeSubscription?.cancel();
+    _scrollController.dispose(); // Dispose the scroll controller
 
     // Ensure to call super.dispose to complete the disposal process
     super.dispose();
@@ -551,9 +578,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
 
     _positionSubscription = player.onPositionChanged.listen((position) {
       if (mounted) {
-        setState(() {
-          _position = position;
-        });
+        setState(() => _position = position);
+        _updateLyricHighlight(position);
       }
     });
 
@@ -568,5 +594,61 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
         });
       }
     });
+
+  }
+
+  Duration _parseTimestamp(String timestamp) {
+    try {
+      final parts = timestamp.split(':');
+      if (parts.length == 3) {
+        return Duration(
+          hours: int.parse(parts[0]),
+          minutes: int.parse(parts[1]),
+          seconds: int.parse(parts[2]),
+        );
+      } else if (parts.length == 2) {
+        return Duration(
+          minutes: int.parse(parts[0]),
+          seconds: int.parse(parts[1]),
+        );
+      }
+      return Duration.zero;
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
+
+  void _updateLyricHighlight(Duration position) {
+    if (widget.lyrics.isEmpty) return;
+
+    // Use a more efficient search algorithm if you have many lyrics
+    int newIndex = -1;
+    for (int i = 0; i < widget.lyrics.length; i++) {
+      final lyricTime = _parseTimestamp(widget.lyrics[i].timestamp);
+      if (position >= lyricTime) {
+        newIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    if (newIndex != _currentLyricIndex && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _currentLyricIndex = newIndex);
+          _scrollToLyric(newIndex);
+        }
+      });
+    }
+  }
+
+  void _scrollToLyric(int index) {
+    if (index >= 0 && _scrollController.hasClients) {
+      _scrollController.animateTo(
+        (index * 30.0).clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 }

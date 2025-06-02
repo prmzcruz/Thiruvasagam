@@ -8,6 +8,7 @@ class Location {
   double latitude;
   double longitude;
   String desc;
+  List<Map<String,String>> lyrics;
 
   Location({
     required this.id,
@@ -19,6 +20,7 @@ class Location {
     required this.latitude,
     required this.longitude,
     required this.desc,
+    required this.lyrics,
   });
 
   factory Location.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,11 @@ class Location {
       latitude: json['latitude'].toDouble(),
       longitude: json['longitude'].toDouble(),
       desc: json['Desc'],
+      lyrics: (json['lyrics'] != null)
+          ? (json['lyrics'] as List)
+          .map((item) => Map<String, String>.from(item as Map))
+          .toList()
+          : [],
     );
   }
 
@@ -46,6 +53,7 @@ class Location {
     data['latitude'] = this.latitude;
     data['longitude'] = this.longitude;
     data['Desc'] = this.desc;
+    data['lyrics'] = this.lyrics;
     return data;
   }
 }
