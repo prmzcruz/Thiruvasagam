@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:thiruvasagam/model/modelclass.dart';
+import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 
 class AudioPlayerSingleton {
   static final AudioPlayerSingleton _instance = AudioPlayerSingleton._internal();

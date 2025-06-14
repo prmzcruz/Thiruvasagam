@@ -12,6 +12,8 @@ import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Dashboard.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
 
+import 'UI/Homescreen.dart';
+
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -281,7 +283,7 @@ class _SplashscreenState extends State<Splashscreen> {
     // var appstatus = prefs.getBool('isLoggedIn') ?? false;
 
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const Dashboard()));
+        context, MaterialPageRoute(builder: (context) => const HomeScreen()));
   }
 }
 

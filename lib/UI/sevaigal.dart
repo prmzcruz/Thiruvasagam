@@ -1,0 +1,143 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:thiruvasagam/UI/sevaigal_viewpage.dart';
+
+import '../model/sevaigal_modelclass.dart';
+import 'package:http/http.dart' as http;
+
+class sevaigal extends StatefulWidget {
+  const sevaigal({super.key});
+
+  @override
+  State<sevaigal> createState() => _sevaigalState();
+}
+
+class _sevaigalState extends State<sevaigal> {
+  late Future<CategoryResponse> futureCategories;
+
+  @override
+  void initState() {
+    super.initState();
+    futureCategories = fetchCategories();
+  }
+
+  static Future<CategoryResponse> fetchCategories() async {
+    final url = Uri.parse(
+        'https://sivavasagam.com/sivasadmin/public/index.php/api/categories');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final jsonBody = json.decode(response.body);
+      return CategoryResponse.fromJson(jsonBody);
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.deepOrangeAccent,
+      body: FutureBuilder<CategoryResponse>(
+        future: futureCategories,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.user.isEmpty) {
+            return Center(child: Text('No categories found.'));
+          } else {
+            final categories = snapshot.data!.user;
+            return Column(
+              children: [
+                Container(
+                  child: const Padding(
+                    padding: EdgeInsets.all(30),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'சேவைகள்',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                fontFamily: 'MeeraInimai-Regular'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: Card(
+                        color: Colors.white70,
+                        child: ListView.builder(
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            final category = categories[index];
+                            return Column(
+                              children: [
+                                ListTile(
+                                  leading: Icon(Icons.category,
+                                      color: Colors.deepPurple),
+                                  title: Text(
+                                    category.fullname,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'MeeraInimai-Regular',
+                                    ),
+                                  ),
+                                  //subtitle: Text(category.fullname),
+                                  trailing: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 15,
+                                    color: Colors.grey,
+                                  ),
+                                  onTap: () {
+                                    print('hello');
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                sevaigal_viewpage(
+                                                  categoryname:
+                                                      category.fullname,
+                                                  catimages: category.catimages,
+                                                )));
+                                  },
+                                ),
+                                const Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 10, right: 10),
+                                    child: Divider(
+                                      thickness: 0.5,
+                                      color: Colors.black12,
+                                    )),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
+    );
+  }
+}

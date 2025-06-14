@@ -8,11 +8,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:thiruvasagam/UI/AudioBackground/AudioplayerSingleton.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
-import 'package:thiruvasagam/model/modelclass.dart';
+import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 import 'package:lottie/lottie.dart';
-
 import '../model/lyrics.dart';
-
 
 class AudioPlayerPage extends StatefulWidget {
   final String audioUrl;
@@ -37,6 +35,7 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
   String name = '';
   bool offlineaudio = false;
   Map<int, List<LyricLine>> lyricsMap = {};
+  List<LyricLine> currentLyrics = [];
 
   @override
   void initState() {
@@ -52,13 +51,18 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
       offlineaudio = true;
       await audioPlayerSingleton.init(widget.audioUrl, locations, widget.id);
       await audioPlayerSingleton.player.resume();
-      setState(() {
-        image = locations[audioPlayerSingleton.currentId].thumbnailimg;
-        name = locations[audioPlayerSingleton.currentId].name;
-      });
+      _updateCurrentAudioDetails();
     } else {
       _showToast('No internet connection');
     }
+  }
+
+  void _updateCurrentAudioDetails() {
+    setState(() {
+      image = locations[audioPlayerSingleton.currentId].thumbnailimg;
+      name = locations[audioPlayerSingleton.currentId].name;
+      currentLyrics = lyricsMap[locations[audioPlayerSingleton.currentId].id] ?? [];
+    });
   }
 
   Future<bool> _checkInternetConnection() async {
@@ -85,16 +89,14 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     if (jsonList.isNotEmpty) {
       setState(() {
         locations = jsonList.map((json) => Location.fromJson(json)).toList();
-        AudioPlayerSingleton().init(widget.audioUrl, locations, widget.id); // Initialize player
-
-        image = locations[AudioPlayerSingleton().currentId].thumbnailimg;
-        name = locations[AudioPlayerSingleton().currentId].name;
+        audioPlayerSingleton.init(widget.audioUrl, locations, widget.id);
+        _updateCurrentAudioDetails();
       });
     }
   }
 
   Future<void> lyricsJsonData() async {
-    String data = await rootBundle.loadString('assets/Lyrics.json');
+    String data = await rootBundle.loadString('assets/Lyrics_new.json');
     Map<String, dynamic> jsonData = json.decode(data);
 
     setState(() {
@@ -103,36 +105,29 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
         int id = int.tryParse(key) ?? 0;
         if (value is List) {
           lyricsMap[id] = value.map((e) => LyricLine.fromJson(e)).toList();
-        } else {
-          debugPrint("Skipping id $id because value is not a List: $value");
         }
       });
+      currentLyrics = lyricsMap[locations[audioPlayerSingleton.currentId].id] ?? [];
     });
   }
 
-  Future <void>_showMiniPlayer() async{
+  Future<void> _showMiniPlayer() async {
     final currentLocation = locations[audioPlayerSingleton.currentId];
     Provider.of<AudioPlayerProvider>(context, listen: false).playSong(
       currentLocation.name,
       currentLocation.thumbnailimg,
     );
     Provider.of<AudioPlayerProvider>(context, listen: false).showMiniPlayer();
-
   }
-
-
 
   @override
   void dispose() {
-    //audioPlayerSingleton.dispose(); // Dispose the player on widget dispose
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentLocation = locations[audioPlayerSingleton.currentId];
-    List<LyricLine> lyricsToDisplay = lyricsMap[currentLocation.id] ?? [];
     return WillPopScope(
       onWillPop: () async {
         await _showMiniPlayer();
@@ -145,38 +140,46 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
               name: name,
               thumblineimg: image,
               player: audioPlayerSingleton.player,
-              onFastForward: audioPlayerSingleton.moveToNextAudio,
-              onRewind: audioPlayerSingleton.moveToPreviousAudio,
+              onFastForward: () async {
+                await audioPlayerSingleton.moveToNextAudio();
+                _updateCurrentAudioDetails();
+              },
+              onRewind: () async {
+                await audioPlayerSingleton.moveToPreviousAudio();
+                _updateCurrentAudioDetails();
+              },
               offlineaudio: offlineaudio,
               isFirstAudio: audioPlayerSingleton.currentId == 0,
               isLastAudio: audioPlayerSingleton.currentId == locations.length - 1,
               miniPlayer: _showMiniPlayer,
-              lyrics: lyricsToDisplay,
+              lyrics: currentLyrics,
+              onLyricsUpdated: () {
+                setState(() {
+                  currentLyrics = lyricsMap[locations[audioPlayerSingleton.currentId].id] ?? [];
+                });
+              },
             ),
           ],
         ),
       ),
     );
   }
-
 }
-
-
 
 class PlayerWidget extends StatefulWidget {
   final AudioPlayer player;
-  bool isFirstAudio;
-  bool isLastAudio;
+  final bool isFirstAudio;
+  final bool isLastAudio;
   final Function onRewind;
   final Function onFastForward;
-  String name;
-  String? thumblineimg;
+  final String name;
+  final String? thumblineimg;
   final bool offlineaudio;
   final Future<void> Function() miniPlayer;
   final List<LyricLine> lyrics;
+  final VoidCallback onLyricsUpdated;
 
-
-  PlayerWidget({
+  const PlayerWidget({
     Key? key,
     required this.player,
     required this.isFirstAudio,
@@ -188,6 +191,7 @@ class PlayerWidget extends StatefulWidget {
     this.offlineaudio = false,
     required this.miniPlayer,
     required this.lyrics,
+    required this.onLyricsUpdated,
   }) : super(key: key);
 
   @override
@@ -198,26 +202,20 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
   PlayerState? _playerState;
   Duration? _duration;
   Duration? _position;
-  final audioPlayerSingleton = AudioPlayerSingleton();
-
+  double _volume = 0.5;
+  late AnimationController _controller;
+  int _currentLyricIndex = -1;
+  final ScrollController _scrollController = ScrollController();
   StreamSubscription? _durationSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _playerCompleteSubscription;
   StreamSubscription? _playerStateChangeSubscription;
 
   bool get _isPlaying => _playerState == PlayerState.playing;
-
   bool get _isPaused => _playerState == PlayerState.paused;
 
   String get _durationText => _duration?.toString().split('.').first ?? '';
-
   String get _positionText => _position?.toString().split('.').first ?? '';
-
-  AudioPlayer get player => widget.player;
-  double _volume = 0.5;
-  late AnimationController _controller;
-  int _currentLyricIndex = -1;
-  final ScrollController _scrollController = ScrollController();
 
   String get _remainingTimeText {
     if (_duration != null && _position != null) {
@@ -230,58 +228,134 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _playerState = player.state;
-    player.getDuration().then((value) => setState(() => _duration = value));
-    player.getCurrentPosition().then((value) => setState(() => _position = value));
+    _playerState = widget.player.state;
+    widget.player.getDuration().then((value) => setState(() => _duration = value));
+    widget.player.getCurrentPosition().then((value) => setState(() => _position = value));
     _initStreams();
-    player.setVolume(_volume);
-    print('widget.thumblineimg${widget.thumblineimg}');
+    widget.player.setVolume(_volume);
     _controller = AnimationController(vsync: this);
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _controller.repeat();
       }
     });
-    // Start playing initially
-    _play(); //play
+    _play();
   }
 
+  void _initStreams() {
+    _durationSubscription = widget.player.onDurationChanged.listen((duration) {
+      if (mounted) {
+        setState(() => _duration = duration);
+      }
+    });
 
+    _positionSubscription = widget.player.onPositionChanged.listen((position) {
+      if (mounted) {
+        setState(() => _position = position);
+        _updateLyricHighlight(position);
+      }
+    });
+
+    _playerCompleteSubscription = widget.player.onPlayerComplete.listen((event) {
+      if (!widget.isLastAudio) {
+        widget.onFastForward();
+        widget.onLyricsUpdated();
+      }
+    });
+
+    _playerStateChangeSubscription = widget.player.onPlayerStateChanged.listen((state) {
+      if (mounted) {
+        setState(() => _playerState = state);
+      }
+    });
+  }
+
+  Duration _parseTimestamp(String timestamp) {
+    try {
+      final parts = timestamp.split(':');
+      if (parts.length == 3) {
+        return Duration(
+          hours: int.parse(parts[0]),
+          minutes: int.parse(parts[1]),
+          seconds: int.parse(parts[2]),
+        );
+      } else if (parts.length == 2) {
+        return Duration(
+          minutes: int.parse(parts[0]),
+          seconds: int.parse(parts[1]),
+        );
+      }
+      return Duration.zero;
+    } catch (e) {
+      return Duration.zero;
+    }
+  }
+
+  void _updateLyricHighlight(Duration position) {
+    if (widget.lyrics.isEmpty) return;
+
+    int newIndex = -1;
+    for (int i = 0; i < widget.lyrics.length; i++) {
+      final lyricTime = _parseTimestamp(widget.lyrics[i].timestamp);
+      if (position >= lyricTime) {
+        newIndex = i;
+      } else {
+        break;
+      }
+    }
+
+    if (newIndex != _currentLyricIndex && mounted) {
+      setState(() => _currentLyricIndex = newIndex);
+      _scrollToLyric(newIndex);
+    }
+  }
+
+  void _scrollToLyric(int index) {
+    if (index >= 0 && _scrollController.hasClients) {
+      _scrollController.animateTo(
+        (index * 30.0).clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
 
   void _setVolume(double value) {
+    setState(() => _volume = value);
+    widget.player.setVolume(value);
+  }
+
+  Future<void> _play() async {
+    await widget.player.resume();
     setState(() {
-      _volume = value;
+      _playerState = PlayerState.playing;
+      _controller.forward();
     });
-    player.setVolume(value);
   }
 
-  void _updateAudioDetails() {
+  Future<void> _pause() async {
+    await widget.player.pause();
     setState(() {
-      widget.thumblineimg = audioPlayerSingleton.locations[audioPlayerSingleton.currentId].thumbnailimg;
-      widget.name = audioPlayerSingleton.locations[audioPlayerSingleton.currentId].name;
+      _playerState = PlayerState.paused;
+      _controller.stop();
     });
   }
 
-  Future<void> handleRewind() {
-    return audioPlayerSingleton.moveToPreviousAudio().then((details) {
-      // Update image and name after rewinding
-      _updateAudioDetails();
-      widget.onRewind(); // Call the onRewind callback
-    });
-  }
-
-  Future<void> handleNext() {
-    return audioPlayerSingleton.moveToNextAudio().then((details) {
-      // Update image and name after moving to next audio
-      _updateAudioDetails();
-    });
+  @override
+  void dispose() {
+    _durationSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _playerCompleteSubscription?.cancel();
+    _playerStateChangeSubscription?.cancel();
+    _scrollController.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double width = constraints.maxWidth;
         return Container(
           height: MediaQuery.of(context).size.height * 1.0,
           decoration: const BoxDecoration(
@@ -305,10 +379,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     children: [
                       IconButton(
                         onPressed: () {
-                          widget.miniPlayer;
+                          widget.miniPlayer();
                           Navigator.pop(context);
                         },
-                        icon: Icon(Icons.arrow_back),
+                        icon: const Icon(Icons.arrow_back),
                       ),
                       Align(
                         alignment: Alignment.topLeft,
@@ -327,8 +401,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
-                    widget.name, // Updated name from the current audio
-                    style: TextStyle(
+                    widget.name,
+                    style: const TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'MeeraInimai-Regular'),
@@ -338,35 +412,32 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   height: MediaQuery.of(context).size.height * 0.28,
                   width: MediaQuery.of(context).size.width * 1.0,
                   child: Padding(
-                    padding: EdgeInsets.all(15),
+                    padding: const EdgeInsets.all(15),
                     child: widget.thumblineimg != null && widget.thumblineimg!.isNotEmpty
                         ? Image.network(
-                      widget.thumblineimg!, // Updated image from the current audio
+                      widget.thumblineimg!,
                       fit: BoxFit.cover,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) {
-                          return child; // Return the image if loadingProgress is null
+                          return child;
                         } else {
                           return const Center(
                               child: CircularProgressIndicator(
                                 color: Colors.blue,
-                              )); // Return CircularProgressIndicator while the image is loading
+                              ));
                         }
                       },
                     )
                         : const SizedBox(),
                   ),
                 ),
-
                 Slider(
                   onChanged: (value) {
                     final duration = _duration;
-                    if (duration == null) {
-                      return;
-                    }
+                    if (duration == null) return;
                     final position = value * duration.inMilliseconds;
-                    player.seek(Duration(milliseconds: position.round()));
+                    widget.player.seek(Duration(milliseconds: position.round()));
                   },
                   value: (_position != null &&
                       _duration != null &&
@@ -378,47 +449,24 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   inactiveColor: Colors.grey,
                 ),
                 Padding(
-                  padding: EdgeInsets.only(left: 15, right: 15),
+                  padding: const EdgeInsets.only(left: 15, right: 15),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _position != null
-                            ? '$_positionText'
-                            : _duration != null
-                            ? _durationText
-                            : '',
-                        style: TextStyle(color: Colors.white),
+                        _position != null ? '$_positionText' : _duration != null ? _durationText : '',
+                        style: const TextStyle(color: Colors.white),
                       ),
                       Text(
-                        _position != null
-                            ? '- $_remainingTimeText'
-                            : _duration != null
-                            ? _durationText
-                            : '',
-                        style: TextStyle(color: Colors.white),
+                        _position != null ? '- $_remainingTimeText' : _duration != null ? _durationText : '',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ],
                   ),
                 ),
-                /*SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  child: FittedBox(
-                    fit: BoxFit.fill,
-                    child: Lottie.asset(
-                      'assets/AnimationViewtest.json',
-                      controller: _controller,
-                      onLoaded: (composition) {
-                        // Configure the AnimationController with the duration of the Lottie file
-                        _controller.duration = composition.duration;
-                      },
-                    ),
-                  ),
-                ),*/
                 Container(
                   height: MediaQuery.of(context).size.height * 0.25,
-                  margin: EdgeInsets.all(15),
+                  margin: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(10),
@@ -463,13 +511,18 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                   children: [
                     IconButton(
                       key: const Key('rewind_button'),
-                      onPressed: handleRewind, //widget.isFirstAudio ? null : handleRewind
+                      onPressed: widget.isFirstAudio ? null : () async {
+                        await widget.onRewind();
+                        setState(() {
+                          _currentLyricIndex = -1;
+                        });
+                      },
                       iconSize: MediaQuery.of(context).size.width * 0.1,
                       icon: const Icon(
                         Icons.fast_rewind,
                         size: 40,
                       ),
-                      color: Colors.black, //widget.isFirstAudio ? Colors.grey : Colors.black
+                      color: widget.isFirstAudio ? Colors.grey : Colors.black,
                     ),
                     const SizedBox(width: 15),
                     IconButton(
@@ -493,10 +546,15 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                       ),
                       color: Colors.black,
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                     IconButton(
                       key: const Key('fast_forward_button'),
-                      onPressed: widget.isLastAudio ? null : handleNext,
+                      onPressed: widget.isLastAudio ? null : () async {
+                        await widget.onFastForward();
+                        setState(() {
+                          _currentLyricIndex = -1;
+                        });
+                      },
                       iconSize: MediaQuery.of(context).size.width * 0.1,
                       icon: const Icon(
                         Icons.fast_forward,
@@ -506,7 +564,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     ),
                   ],
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Padding(
@@ -535,120 +593,5 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
         );
       },
     );
-  }
-
-  Future<void> _play() async {
-    await player.resume();
-    setState(() {
-      _playerState = PlayerState.playing;
-      _controller.forward(); // Start the animation
-    });
-  }
-
-  Future<void> _pause() async {
-    await player.pause();
-    setState(() {
-      _playerState = PlayerState.paused;
-      _controller.stop(); // Stop the animation
-    });
-  }
-
-
-  @override
-  void dispose() {
-    // Cancel the subscriptions to avoid calling setState on a disposed widget
-    _durationSubscription?.cancel();
-    _positionSubscription?.cancel();
-    _playerCompleteSubscription?.cancel();
-    _playerStateChangeSubscription?.cancel();
-    _scrollController.dispose(); // Dispose the scroll controller
-
-    // Ensure to call super.dispose to complete the disposal process
-    super.dispose();
-  }
-
-  void _initStreams() {
-    _durationSubscription = player.onDurationChanged.listen((duration) {
-      if (mounted) {
-        setState(() {
-          _duration = duration;
-        });
-      }
-    });
-
-    _positionSubscription = player.onPositionChanged.listen((position) {
-      if (mounted) {
-        setState(() => _position = position);
-        _updateLyricHighlight(position);
-      }
-    });
-
-    _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
-      handleNext(); // Automatically move to next audio when current is complete
-    });
-
-    _playerStateChangeSubscription = player.onPlayerStateChanged.listen((state) {
-      if (mounted) {
-        setState(() {
-          _playerState = state;
-        });
-      }
-    });
-
-  }
-
-  Duration _parseTimestamp(String timestamp) {
-    try {
-      final parts = timestamp.split(':');
-      if (parts.length == 3) {
-        return Duration(
-          hours: int.parse(parts[0]),
-          minutes: int.parse(parts[1]),
-          seconds: int.parse(parts[2]),
-        );
-      } else if (parts.length == 2) {
-        return Duration(
-          minutes: int.parse(parts[0]),
-          seconds: int.parse(parts[1]),
-        );
-      }
-      return Duration.zero;
-    } catch (e) {
-      return Duration.zero;
-    }
-  }
-
-  void _updateLyricHighlight(Duration position) {
-    if (widget.lyrics.isEmpty) return;
-
-    // Use a more efficient search algorithm if you have many lyrics
-    int newIndex = -1;
-    for (int i = 0; i < widget.lyrics.length; i++) {
-      final lyricTime = _parseTimestamp(widget.lyrics[i].timestamp);
-      if (position >= lyricTime) {
-        newIndex = i;
-      } else {
-        break;
-      }
-    }
-
-    if (newIndex != _currentLyricIndex && mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() => _currentLyricIndex = newIndex);
-          _scrollToLyric(newIndex);
-        }
-      });
-    }
-  }
-
-  void _scrollToLyric(int index) {
-    if (index >= 0 && _scrollController.hasClients) {
-      _scrollController.animateTo(
-        (index * 30.0).clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
   }
 }
