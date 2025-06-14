@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:thiruvasagam/UI/sevaigal_viewpage.dart';
+import 'package:thiruvasagam/UI/sub_catogory.dart';
 
 import '../model/sevaigal_modelclass.dart';
 import 'package:http/http.dart' as http;
@@ -27,10 +29,12 @@ class _sevaigalState extends State<sevaigal> {
         'https://sivavasagam.com/sivasadmin/public/index.php/api/categories');
     final response = await http.get(url);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final jsonBody = json.decode(response.body);
+      log('Response Body: $jsonBody');
       return CategoryResponse.fromJson(jsonBody);
     } else {
+      print('Failed to load categories. Status code: ${response.statusCode} ,${response.body}');
       throw Exception('Failed to load categories');
     }
   }
@@ -46,10 +50,10 @@ class _sevaigalState extends State<sevaigal> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.user.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.categories.isEmpty) {
             return Center(child: Text('No categories found.'));
           } else {
-            final categories = snapshot.data!.user;
+            final categories = snapshot.data!.categories;
             return Column(
               children: [
                 Container(
@@ -111,11 +115,17 @@ class _sevaigalState extends State<sevaigal> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                sevaigal_viewpage(
+                                                /*sevaigal_viewpage(
                                                   categoryname:
                                                       category.fullname,
                                                   catimages: category.catimages,
-                                                )));
+                                                  subcatimages:category.catimages.map((catimage) => catimage.catChildren).toList(),
+                                                )*/
+                                            sub_catogory(
+                                              catimages: category.catimages,
+                                              subcatimages: category.catimages.map((catimage) => catimage.catChildren).toList(),
+                                            )
+                                        ));
                                   },
                                 ),
                                 const Padding(
