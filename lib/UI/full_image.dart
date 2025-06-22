@@ -42,7 +42,7 @@ class _FullImageViewerState extends State<FullImageViewer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentImage.name,style: TextStyle(
+        title: Text(currentImage.name,style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -72,7 +72,7 @@ class _FullImageViewerState extends State<FullImageViewer> {
               children: [
                 TextButton(
                   onPressed: currentIndex > 0 ? showPreviousImage : null,
-                  child: const Text("Previous",style: TextStyle(color: Colors.blue,fontSize: 15,fontWeight: FontWeight.w600),),
+                  child: const Text("Previous",style: TextStyle(color: Colors.blue,fontSize: 15,fontWeight: FontWeight.w600)),
                 ),
                 TextButton(
                   onPressed: currentIndex < widget.catimages.length - 1

@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/UI/Dashboard.dart';
 import 'package:thiruvasagam/UI/Miniplayer.dart';
-
 import 'UI/Homescreen.dart';
 
 
@@ -37,7 +36,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> backgroundHandler(RemoteMessage message) async {
   // print(message.notification?.title);
   // print(message.data.toString());
-  await Firebase.initializeApp(); //--
+  await Firebase.initializeApp();
 }
 
 
@@ -131,8 +130,8 @@ Future<void> main() async{
 
     flutterLocalNotificationsPlugin.show(
         notification.hashCode,
-        notification?.title, // Title of our notification
-        notification?.body, // Body of our notification
+        notification?.title,
+        notification?.body,
         const NotificationDetails(
             android: AndroidNotificationDetails(
                 "1",
@@ -177,7 +176,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Sivavasagam',
       theme: ThemeData(
         //colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         primaryColor: Colors.white,
@@ -212,7 +211,7 @@ class MainLayout extends StatelessWidget {
                       right: 0,
                       child: MiniPlayer(
                         player: audioPlayerProvider.audioPlayer,
-                        songName: "Your Song Name", // Pass the song name
+                        songName: "song name", // Pass the song name
                         imageUrl: "https://example.com/song-thumbnail.jpg", // Pass the image URL
                         //songDuration: Duration(minutes: 3, seconds: 45), // Pass song duration
                         onClose: audioPlayerProvider.hideMiniPlayer,
