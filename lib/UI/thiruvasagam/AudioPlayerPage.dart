@@ -10,7 +10,7 @@ import 'package:thiruvasagam/UI/AudioBackground/AudioplayerSingleton.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 import 'package:lottie/lottie.dart';
-import '../model/lyrics.dart';
+import '../../model/lyrics.dart';
 
 class AudioPlayerPage extends StatefulWidget {
   final String audioUrl;

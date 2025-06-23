@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/sevaigal_modelclass.dart';
+import '../../model/sevaigal_modelclass.dart';
 
 class FullImageViewer extends StatefulWidget {
   final List<CatChild> catimages;
@@ -65,6 +65,10 @@ class _FullImageViewerState extends State<FullImageViewer> {
               ),
             ),
           ),
+          Text(currentImage.description!,style: TextStyle(
+              color: Colors.black,
+              fontSize: 15,
+              fontWeight: FontWeight.w600)),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24),
             child: Row(

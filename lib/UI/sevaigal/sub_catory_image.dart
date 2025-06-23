@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/sevaigal_modelclass.dart';
+import '../../model/sevaigal_modelclass.dart';
 import 'full_image.dart';
 
 class sub_catogory_image extends StatelessWidget {

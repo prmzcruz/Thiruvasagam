@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:thiruvasagam/UI/sevaigal_viewpage.dart';
-import 'package:thiruvasagam/UI/sub_catogory.dart';
+import 'package:thiruvasagam/UI/sevaigal/sevaigal_viewpage.dart';
+import 'package:thiruvasagam/UI/sevaigal/sub_catogory.dart';
 
-import '../model/sevaigal_modelclass.dart';
+import '../../model/sevaigal_modelclass.dart';
 import 'package:http/http.dart' as http;
 
 class sevaigal extends StatefulWidget {

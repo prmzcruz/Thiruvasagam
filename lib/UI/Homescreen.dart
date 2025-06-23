@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:thiruvasagam/UI/sevaigal.dart';
+import 'package:thiruvasagam/UI/sevaigal/sevaigal.dart';
 
-import 'AudioPlayerPage.dart';
-import 'Dashboard.dart';
+import 'thiruvasagam/AudioPlayerPage.dart';
+import 'thiruvasagam/Dashboard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

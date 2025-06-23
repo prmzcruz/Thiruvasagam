@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';  // Assuming you are using Provider for state management
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
-import 'package:thiruvasagam/UI/Miniplayer.dart';
+import 'package:thiruvasagam/UI/thiruvasagam/Miniplayer.dart';
 
 import 'AudioPlayerPage.dart';
 // import 'audio_player_provider.dart';  // Import your AudioPlayerProvider here

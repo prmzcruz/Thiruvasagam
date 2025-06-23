@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:thiruvasagam/UI/sevaigal_viewpage.dart';
+import 'package:thiruvasagam/UI/sevaigal/sevaigal_viewpage.dart';
 
-import '../model/sevaigal_modelclass.dart';
+import '../../model/sevaigal_modelclass.dart';
 
 class sub_catogory extends StatefulWidget {
   final List<CatImage> catimages;
@@ -81,6 +81,7 @@ class _sub_catogoryState extends State<sub_catogory> {
                                 MaterialPageRoute(
                                   builder: (context) => sevaigal_viewpage(
                                     categoryname: selectedCatImage.name ?? '',
+                                    description:selectedCatImage.description ?? '',
                                     catimages: [selectedCatImage], // List<CatImage> with one item
                                     subcatimages: selectedSubCatImages, // List<CatChild>
                                   ),

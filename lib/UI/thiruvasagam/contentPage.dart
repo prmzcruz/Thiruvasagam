@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:thiruvasagam/UI/AudioPlayerPage.dart';
-import 'package:thiruvasagam/UI/MainScree.dart';
+import 'package:thiruvasagam/UI/thiruvasagam/AudioPlayerPage.dart';
+import 'package:thiruvasagam/UI/thiruvasagam/MainScree.dart';
 
 class ContentPage extends StatefulWidget {
   final int id;

@@ -9,8 +9,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
-import 'package:thiruvasagam/UI/Dashboard.dart';
-import 'package:thiruvasagam/UI/Miniplayer.dart';
+import 'package:thiruvasagam/UI/thiruvasagam/Dashboard.dart';
+import 'package:thiruvasagam/UI/thiruvasagam/Miniplayer.dart';
 import 'UI/Homescreen.dart';
 
 
