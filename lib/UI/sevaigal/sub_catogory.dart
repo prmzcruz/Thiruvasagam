@@ -80,6 +80,7 @@ class _sub_catogoryState extends State<sub_catogory> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => sevaigal_viewpage(
+                                    catogoryId:selectedCatImage.id.toString() ?? '',
                                     categoryname: selectedCatImage.name ?? '',
                                     description:selectedCatImage.description ?? '',
                                     catimages: [selectedCatImage], // List<CatImage> with one item

@@ -25,6 +25,7 @@ class sub_catogory_image extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final image = catimages[index];
+            print('image--${image.name}, ${image.id}');
             return GestureDetector(
               onTap: () {
                 Navigator.push(

@@ -4,6 +4,7 @@ import 'package:thiruvasagam/UI/sevaigal/sub_catory_image.dart';
 import '../../model/sevaigal_modelclass.dart';
 
 class sevaigal_viewpage extends StatefulWidget {
+  final String catogoryId;
   final String categoryname;
   final String description;
   final List<CatImage> catimages;
@@ -11,6 +12,7 @@ class sevaigal_viewpage extends StatefulWidget {
 
   const sevaigal_viewpage(
       {super.key,
+        required this.catogoryId,
       required this.categoryname,
       required this.description,
       required this.catimages,
@@ -25,6 +27,10 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
   Widget build(BuildContext context) {
     final CatImage? firstImage =
         widget.catimages.isNotEmpty ? widget.catimages[0] : null;
+
+    final List<CatChild> subCategoryImages =
+        firstImage?.catChildren ?? [];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.categoryname,style: const TextStyle(
@@ -76,9 +82,10 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => sub_catogory_image(
-                                          catimages: widget.subcatimages
-                                              .expand((list) => list)
-                                              .toList(),
+                                          // catimages: widget.subcatimages
+                                          //     .expand((list) => list)
+                                          //     .toList(),
+                                        catimages: subCategoryImages
                                         )));
                           },
                           child: const Text(
