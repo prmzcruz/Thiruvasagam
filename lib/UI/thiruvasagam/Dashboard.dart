@@ -18,6 +18,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
 
+
   List<Location> locations = [];
   List<String> locationNames = [];
 
@@ -52,6 +53,7 @@ class _DashboardState extends State<Dashboard> {
         topRight: Radius.circular(30),
         bottomRight: Radius.circular(30),
       ),
+
       child: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -67,10 +69,11 @@ class _DashboardState extends State<Dashboard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CircleAvatar(
-                      backgroundColor: Colors.deepOrangeAccent,
+                      backgroundColor: Colors.red,
                       backgroundImage: AssetImage('assets/Sivavasagam.jpeg'),
                       radius: 50,
                     ),
+
                     SizedBox(height: 12),
                     Text(
                       'திருவாசகம்',
@@ -88,7 +91,7 @@ class _DashboardState extends State<Dashboard> {
             Container(
               child: ListTile(
                 leading: Icon(Icons.home,
-                    color: Colors.deepOrangeAccent,),
+                    color: Colors.red,),
                 title: const Text(
                   'Home',
                   style: TextStyle(
@@ -104,7 +107,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading:
-              Icon(Icons.details, color: Colors.deepOrangeAccent,),
+              Icon(Icons.details, color: Colors.red,),
               title: const Text(
                 'About',
                 style: TextStyle(
@@ -119,7 +122,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading:
-              Icon(Icons.language, color: Colors.deepOrangeAccent,),
+              Icon(Icons.language, color: Colors.red,),
               title: const Text(
                 'Language',
                 style: TextStyle(
@@ -138,7 +141,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             const ListTile(
               leading: Icon(Icons.phone,
-                  color: Colors.deepOrangeAccent,),
+                  color: Colors.red,),
               title: Text(
                 'Contact',
                 style: TextStyle(
@@ -154,7 +157,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading: Icon(Icons.calendar_month,
-                  color: Colors.deepOrangeAccent,),
+                  color: Colors.red,),
               title: const Text(
                 'Calendar',
                 style: TextStyle(
@@ -176,7 +179,7 @@ class _DashboardState extends State<Dashboard> {
                         colorScheme: ColorScheme.light(
                           primary: Colors.deepOrange,    // Selection color
                           onPrimary: Colors.white,       // Text color on selected date
-                          surface: Colors.deepOrangeAccent, // Background for header
+                          surface: Colors.red, // Background for header
                         ),
                         buttonTheme: ButtonThemeData(
                           textTheme: ButtonTextTheme.primary, // Text color for buttons
@@ -199,7 +202,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading: Icon(Icons.share,
-                  color: Colors.deepOrangeAccent,),
+                  color: Colors.red,),
               title: const Text(
                 'Share ',
                 style: TextStyle(
@@ -237,7 +240,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading: Icon(Icons.policy,
-                  color: Colors.deepOrangeAccent,),
+                  color: Colors.red,),
               title: const Text(
                 'Privacy policy',
                 style: TextStyle(
@@ -252,7 +255,7 @@ class _DashboardState extends State<Dashboard> {
             const Divider(),
             ListTile(
               leading: Icon(Icons.book_rounded,
-                  color: Colors.deepOrangeAccent,),
+                  color: Colors.red,),
               title: const Text(
                 'Uzhavar pani',
                 style: TextStyle(
@@ -277,13 +280,15 @@ class _DashboardState extends State<Dashboard> {
     return MainScreen(
       child: Scaffold(
         drawer: _buildStylishDrawer(),
-        backgroundColor: Colors.deepOrangeAccent,
+        backgroundColor: Colors.red,
         body: Column(
           children: [
+
             Container(
               child: const Padding(
                 padding: EdgeInsets.all(30),
                 child: Column(
+
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Align(
@@ -291,7 +296,7 @@ class _DashboardState extends State<Dashboard> {
                       child: Text(
                         'எட்டாம்-திருமுறை-திருவாசகம்',
                         style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 18,
                             fontFamily: 'MeeraInimai-Regular'
@@ -305,6 +310,7 @@ class _DashboardState extends State<Dashboard> {
                         style: TextStyle(
                             fontSize: 12,
                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                             fontFamily: 'MeeraInimai-Regular'
                         ),
                       ),
@@ -317,8 +323,8 @@ class _DashboardState extends State<Dashboard> {
               child: Container(
                 child: Padding(
                   padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
+                    left: 0,
+                    right: 0,
                   ),
                   child: Card(
                     color: Colors.white70,
@@ -358,13 +364,13 @@ class _DashboardState extends State<Dashboard> {
                                 trailing: const Icon(
                                   Icons.arrow_forward_ios,
                                   size: 15,
-                                  color: Colors.grey,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
                             if (index < locations.length - 1)
                               const Padding(
-                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  padding: EdgeInsets.only(left: 0, right: 0),
                                   child: Divider(
                                     thickness: 0.5,
                                     color: Colors.black12,

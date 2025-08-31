@@ -82,7 +82,9 @@ class _sub_catogoryState extends State<sub_catogory> {
                                   builder: (context) => sevaigal_viewpage(
                                     catogoryId:selectedCatImage.id.toString() ?? '',
                                     categoryname: selectedCatImage.name ?? '',
+                                    name: selectedCatImage.name ?? '',
                                     description:selectedCatImage.description ?? '',
+                                    address: selectedCatImage.address ?? '',
                                     catimages: [selectedCatImage], // List<CatImage> with one item
                                     subcatimages: selectedSubCatImages, // List<CatChild>
                                   ),
