@@ -8,7 +8,7 @@ import Foundation
 import audio_service
 import audio_session
 import audioplayers_darwin
-import connectivity_macos
+import connectivity_plus
 import firebase_core
 import firebase_messaging
 import flutter_inappwebview_macos

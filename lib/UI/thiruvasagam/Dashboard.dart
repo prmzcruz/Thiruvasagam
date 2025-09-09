@@ -8,6 +8,8 @@ import 'package:thiruvasagam/UI/thiruvasagam/MainScree.dart';
 import 'package:thiruvasagam/UI/thiruvasagam/contentPage.dart';
 import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:thiruvasagam/utility/color.dart';
+import 'package:thiruvasagam/utility/utility.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -58,9 +60,9 @@ class _DashboardState extends State<Dashboard> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const DrawerHeader(
+             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.deepOrangeAccent,
+                color: HexColor(Colorscommon.redcolor),
                 //borderRadius: BorderRadius.circular(25.0,),
               ),
               child: SingleChildScrollView(
@@ -280,10 +282,9 @@ class _DashboardState extends State<Dashboard> {
     return MainScreen(
       child: Scaffold(
         drawer: _buildStylishDrawer(),
-        backgroundColor: Colors.red,
+        backgroundColor: HexColor(Colorscommon.redcolor),
         body: Column(
           children: [
-
             Container(
               child: const Padding(
                 padding: EdgeInsets.all(30),
@@ -361,10 +362,10 @@ class _DashboardState extends State<Dashboard> {
                                     fontSize: 16,fontWeight: FontWeight.w600
                                 ),
                                 ),
-                                trailing: const Icon(
+                                trailing:  Icon(
                                   Icons.arrow_forward_ios,
                                   size: 15,
-                                  color: Colors.white,
+                                  color: HexColor(Colorscommon.greycolor),
                                 ),
                               ),
                             ),
@@ -467,8 +468,8 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.deepOrange,
-                    onPrimary: Colors.white,
+                    foregroundColor: Colors.deepOrange,
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:thiruvasagam/UI/sevaigal/sub_catory_image.dart';
 
 import '../../model/sevaigal_modelclass.dart';
+import '../../utility/color.dart';
+import '../../utility/utility.dart';
 
 class sevaigal_viewpage extends StatefulWidget {
   final String catogoryId;
@@ -44,7 +46,7 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
             fontSize: 18,
             fontFamily: 'MeeraInimai-Regular')),
         centerTitle: true,
-        backgroundColor: Colors.red,
+        backgroundColor: HexColor(Colorscommon.red),
       ),
       backgroundColor: Colors.white,
       body: firstImage == null

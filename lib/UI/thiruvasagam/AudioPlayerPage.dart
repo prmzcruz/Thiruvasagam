@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:connectivity/connectivity.dart';
+//import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,7 +10,9 @@ import 'package:thiruvasagam/UI/AudioBackground/AudioplayerSingleton.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
 import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 import 'package:lottie/lottie.dart';
+import 'package:thiruvasagam/utility/color.dart';
 import '../../model/lyrics.dart';
+import '../../utility/utility.dart';
 
 class AudioPlayerPage extends StatefulWidget {
   final String audioUrl;
@@ -47,14 +49,14 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
   }
 
   Future<void> _initializeAudio() async {
-    if (await _checkInternetConnection()) {
+   // if (await _checkInternetConnection()) {
       offlineaudio = true;
       await audioPlayerSingleton.init(widget.audioUrl, locations, widget.id);
       await audioPlayerSingleton.player.resume();
       _updateCurrentAudioDetails();
-    } else {
-      _showToast('No internet connection');
-    }
+    // } else {
+    //   _showToast('No internet connection');
+    // }
   }
 
   void _updateCurrentAudioDetails() {
@@ -65,10 +67,10 @@ class _AudioPlayerPageState extends State<AudioPlayerPage> with WidgetsBindingOb
     });
   }
 
-  Future<bool> _checkInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
-  }
+  // Future<bool> _checkInternetConnection() async {
+  //   var connectivityResult = await (Connectivity().checkConnectivity());
+  //   return connectivityResult != ConnectivityResult.none;
+  // }
 
   void _showToast(String message) {
     Fluttertoast.showToast(
@@ -363,9 +365,8 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
               begin: Alignment.topLeft,
               end: Alignment.centerRight,
               colors: [
-                Colors.white,
-                Colors.red,
-                Colors.indigo,
+                Colors.orange,
+                Colors.purple,
               ],
             ),
           ),
@@ -373,32 +374,39 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          widget.miniPlayer();
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.arrow_back),
-                      ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          widget.name,
-                          style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                              fontFamily: 'MeeraInimai-Regular'),
+                Container(
+                  //height: 100,
+                  color: HexColor(Colorscommon.red), // set your container color here
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0), // optional padding
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            widget.miniPlayer();
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.arrow_back,color: HexColor(Colorscommon.whitecolor),),
                         ),
-                      ),
-                    ],
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            widget.name,
+                            style:  TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: HexColor(Colorscommon.whitecolor),
+                              fontFamily: 'MeeraInimai-Regular',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Padding(
+
+               /* Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
                     widget.name,
@@ -407,7 +415,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                         fontWeight: FontWeight.bold,
                         fontFamily: 'MeeraInimai-Regular'),
                   ),
-                ),
+                ),*/
                 Container(
                   height: MediaQuery.of(context).size.height * 0.28,
                   width: MediaQuery.of(context).size.width * 1.0,
@@ -467,10 +475,10 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                 Container(
                   height: MediaQuery.of(context).size.height * 0.25,
                   margin: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  // decoration: BoxDecoration(
+                  //   color: Colors.black.withOpacity(0.3),
+                  //   borderRadius: BorderRadius.circular(10),
+                  // ),
                   child: widget.lyrics.isEmpty
                       ? Center(
                     child: Text(
@@ -494,12 +502,12 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: isActive ? 20 : 16,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.bold,
                             color: isActive
-                                ? Colors.red
+                                ? Colors.white
                                 : isPast
-                                ? Colors.white70
-                                : Colors.white,
+                                ? Colors.black38
+                                : Colors.black,
                           ),
                         ),
                       );

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
 import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
+import 'package:thiruvasagam/utility/color.dart';
+import 'package:thiruvasagam/utility/utility.dart';
 
 class MiniPlayer extends StatelessWidget {
   final AudioPlayer player;
@@ -23,7 +25,7 @@ class MiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final audioPlayerProvider = Provider.of<AudioPlayerProvider>(context);
     return Container(
-      color: Colors.blueGrey[800],
+      color: HexColor(Colorscommon.red),
       height: 70,
       padding: const EdgeInsets.all(8.0),
       child: Row(

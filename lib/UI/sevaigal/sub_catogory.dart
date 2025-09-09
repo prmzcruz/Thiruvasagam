@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:thiruvasagam/UI/sevaigal/sevaigal_viewpage.dart';
+import 'package:thiruvasagam/utility/color.dart';
+import 'package:thiruvasagam/utility/utility.dart';
 
 import '../../model/sevaigal_modelclass.dart';
 
@@ -16,7 +18,7 @@ class _sub_catogoryState extends State<sub_catogory> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-        backgroundColor: Colors.deepOrangeAccent,
+        backgroundColor: HexColor(Colorscommon.red),
       body: Column(
         children: [
           Container(
@@ -32,7 +34,7 @@ class _sub_catogoryState extends State<sub_catogory> {
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w600,
-                          fontSize: 18,
+                          fontSize: 25,
                           fontFamily: 'MeeraInimai-Regular'),
                     ),
                   ),
@@ -56,8 +58,8 @@ class _sub_catogoryState extends State<sub_catogory> {
                       return Column(
                         children: [
                           ListTile(
-                            leading: Icon(Icons.category,
-                                color: Colors.deepPurple),
+                            // leading: Icon(Icons.category,
+                            //     color: Colors.deepPurple),
                             title: Text(
                               category.name ?? '',
                               style: TextStyle(

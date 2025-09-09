@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:connectivity/connectivity.dart';
+//import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -47,24 +47,24 @@ class _AudioPlayerPagesampleState extends State<AudioPlayerPagesample> with Widg
   }
 
   Future<void> _initializeAudio() async {
-    if (await _checkInternetConnection()) {
+   // if (await _checkInternetConnection()) {
       offlineaudio = true;
       await audioPlayerSingleton.init(widget.audioUrl, locations, widget.id);
       await audioPlayerSingleton.player.resume();
-    } else {
-      ('No internet connection');
-      Fluttertoast.showToast(
-        msg: 'No internet connection',
-        backgroundColor: Colors.red,
-        gravity: ToastGravity.BOTTOM,
-      );
-    }
+    // } else {
+    //   ('No internet connection');
+    //   Fluttertoast.showToast(
+    //     msg: 'No internet connection',
+    //     backgroundColor: Colors.red,
+    //     gravity: ToastGravity.BOTTOM,
+    //   );
+    // }
   }
 
-  Future<bool> _checkInternetConnection() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
-  }
+  // Future<bool> _checkInternetConnection() async {
+  //   var connectivityResult = await (Connectivity().checkConnectivity());
+  //   return connectivityResult != ConnectivityResult.none;
+  // }
 
   Future<void> loadJsonData() async {
     String data = await rootBundle.loadString('assets/locations.json');

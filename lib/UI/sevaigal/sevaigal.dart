@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:thiruvasagam/UI/sevaigal/sevaigal_viewpage.dart';
 import 'package:thiruvasagam/UI/sevaigal/sub_catogory.dart';
+import 'package:thiruvasagam/utility/color.dart';
+import 'package:thiruvasagam/utility/utility.dart';
 
 import '../../model/sevaigal_modelclass.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +44,7 @@ class _sevaigalState extends State<sevaigal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepOrangeAccent,
+      backgroundColor: HexColor(Colorscommon.red),
       body: FutureBuilder<CategoryResponse>(
         future: futureCategories,
         builder: (context, snapshot) {
@@ -69,7 +71,7 @@ class _sevaigalState extends State<sevaigal> {
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 18,
+                                fontSize: 25,
                                 fontFamily: 'MeeraInimai-Regular'),
                           ),
                         ),
@@ -93,8 +95,8 @@ class _sevaigalState extends State<sevaigal> {
                             return Column(
                               children: [
                                 ListTile(
-                                  leading: Icon(Icons.category,
-                                      color: Colors.deepPurple),
+                                  // leading: Icon(Icons.category,
+                                  //     color: Colors.deepPurple),
                                   title: Text(
                                     category.fullname,
                                     style: TextStyle(

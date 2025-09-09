@@ -6,6 +6,9 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:thiruvasagam/UI/thiruvasagam/AudioPlayerPage.dart';
 import 'package:thiruvasagam/UI/thiruvasagam/MainScree.dart';
 
+import '../../utility/color.dart';
+import '../../utility/utility.dart';
+
 class ContentPage extends StatefulWidget {
   final int id;
   final String audioUrl;
@@ -45,7 +48,7 @@ class _ContentPageState extends State<ContentPage> {
     return MainScreen(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.deepOrangeAccent,
+          backgroundColor: HexColor(Colorscommon.red),
           elevation: 5.0,
           title: Text(
             widget.name,
