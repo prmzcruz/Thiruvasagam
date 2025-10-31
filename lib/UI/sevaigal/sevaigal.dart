@@ -59,7 +59,7 @@ class _sevaigalState extends State<sevaigal> {
             return Column(
               children: [
                 Container(
-                  child: const Padding(
+                  child:  Padding(
                     padding: EdgeInsets.all(30),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -69,10 +69,10 @@ class _sevaigalState extends State<sevaigal> {
                           child: Text(
                             'சேவைகள்',
                             style: TextStyle(
-                                color: Colors.black,
+                                color: HexColor(Colorscommon.whitecolor),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 25,
-                                fontFamily: 'MeeraInimai-Regular'),
+                              fontFamily: 'MeeraInimai-Regular',),
                           ),
                         ),
                       ],
@@ -99,9 +99,9 @@ class _sevaigalState extends State<sevaigal> {
                                   //     color: Colors.deepPurple),
                                   title: Text(
                                     category.fullname,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                       fontFamily: 'MeeraInimai-Regular',
                                     ),
                                   ),

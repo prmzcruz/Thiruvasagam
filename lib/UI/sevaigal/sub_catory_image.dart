@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../model/sevaigal_modelclass.dart';
+import '../../utility/color.dart';
+import '../../utility/utility.dart';
 import 'full_image.dart';
 
 class sub_catogory_image extends StatelessWidget {
@@ -9,10 +11,18 @@ class sub_catogory_image extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Images", style: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back,color: HexColor(Colorscommon.whitecolor),),
+        ),
+        backgroundColor: HexColor(Colorscommon.red),
+        title:  Text("Images", style: TextStyle(
+            color: HexColor(Colorscommon.whitecolor),
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
           fontFamily: 'MeeraInimai-Regular')),centerTitle: true,),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

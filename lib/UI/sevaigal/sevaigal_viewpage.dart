@@ -39,11 +39,10 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.categoryname,style: const TextStyle(
-            color: Colors.black,
-
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+        title: Text(widget.categoryname,style:  TextStyle(
+            color: HexColor(Colorscommon.whitecolor),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
             fontFamily: 'MeeraInimai-Regular')),
         centerTitle: true,
         backgroundColor: HexColor(Colorscommon.red),
@@ -76,9 +75,9 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
                     ),
                   ),
                   Center(child: Text(widget.address,style: TextStyle(
-                      color: Colors.black,
+                      color: HexColor(Colorscommon.blackcolor),
                       fontSize: 15,
-                      fontWeight: FontWeight.w600))),
+                      fontWeight: FontWeight.bold))),
 
                   const SizedBox(height: 16),
                   if (widget.subcatimages.first.isNotEmpty)

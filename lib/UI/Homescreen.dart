@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:thiruvasagam/UI/sevaigal/sevaigal.dart';
-
+import 'package:thiruvasagam/utility/color.dart';
+import 'package:thiruvasagam/utility/utility.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import 'thiruvasagam/AudioPlayerPage.dart';
 import 'thiruvasagam/Dashboard.dart';
-
+import 'package:package_info/package_info.dart';
+import 'package:http/http.dart' as http;
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,11 +18,19 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+
   // List of pages/screens
   final List<Widget> _pages = [
     const Dashboard(),
     const sevaigal(),
   ];
+
+
+  @override
+  void initState(){
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         items:  [
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'திருவாசகம்',
           ),
@@ -45,8 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'சேவைகள்',
           ),
         ],
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: HexColor(Colorscommon.red),
+        unselectedItemColor: HexColor(Colorscommon.greycolor),
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,

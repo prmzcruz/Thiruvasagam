@@ -6,10 +6,11 @@ class CategoryResponse {
 
   factory CategoryResponse.fromJson(Map<String, dynamic> json) {
     return CategoryResponse(
-      message: json['message'],
-      categories: List<Category>.from(
-        json['categories'].map((x) => Category.fromJson(x)),
-      ),
+      message: json['message'] ?? '',
+      categories: (json['categories'] as List<dynamic>?)
+          ?.map((x) => Category.fromJson(x))
+          .toList() ??
+          [],
     );
   }
 }
@@ -31,13 +32,14 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      id: json['id'],
-      uuid: json['uuid'],
-      name: json['name'],
-      fullname: json['fullname'],
-      catimages: List<CatImage>.from(
-        json['catimages'].map((x) => CatImage.fromJson(x)),
-      ),
+      id: json['id'] ?? 0,
+      uuid: json['uuid'] ?? '',
+      name: json['name'] ?? '',
+      fullname: json['fullname'] ?? '',
+      catimages: (json['catimages'] as List<dynamic>?)
+          ?.map((x) => CatImage.fromJson(x))
+          .toList() ??
+          [],
     );
   }
 }
@@ -63,16 +65,16 @@ class CatImage {
 
   factory CatImage.fromJson(Map<String, dynamic> json) {
     return CatImage(
-      id: json['id'],
+      id: json['id'] ?? 0,
       name: json['name'],
       description: json['description'],
       address: json['address'],
-      imageName: json['image_name'],
-      path: json['path'],
-      catChildren: json['cat_children'] != null
-          ? List<CatChild>.from(
-          json['cat_children'].map((x) => CatChild.fromJson(x)))
-          : [],
+      imageName: json['image_name'] ?? '',
+      path: json['path'] ?? '',
+      catChildren: (json['cat_children'] as List<dynamic>?)
+          ?.map((x) => CatChild.fromJson(x))
+          .toList() ??
+          [],
     );
   }
 }
@@ -98,13 +100,13 @@ class CatChild {
 
   factory CatChild.fromJson(Map<String, dynamic> json) {
     return CatChild(
-      id: json['id'],
-      uuid: json['uuid'],
-      name: json['name'],
+      id: json['id'] ?? 0,
+      uuid: json['uuid'] ?? '',
+      name: json['name'] ?? '',
       description: json['description'],
       address: json['address'],
-      imageName: json['image_name'],
-      path: json['path'],
+      imageName: json['image_name'] ?? '',
+      path: json['path'] ?? '',
     );
   }
 }

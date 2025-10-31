@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../model/sevaigal_modelclass.dart';
+import '../../utility/color.dart';
+import '../../utility/utility.dart';
 
 class FullImageViewer extends StatefulWidget {
   final List<CatChild> catimages;
@@ -42,10 +44,17 @@ class _FullImageViewerState extends State<FullImageViewer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentImage.name,style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+        backgroundColor: HexColor(Colorscommon.red),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back,color: HexColor(Colorscommon.whitecolor),),
+        ),
+        title: Text(currentImage.name,style:  TextStyle(
+            color: HexColor(Colorscommon.whitecolor),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
             fontFamily: 'MeeraInimai-Regular')),
         centerTitle: true,
       ),
@@ -65,7 +74,7 @@ class _FullImageViewerState extends State<FullImageViewer> {
               ),
             ),
           ),
-          Text(currentImage.description!,style: TextStyle(
+          Text(currentImage.description ?? 'No description available',style: const TextStyle(
               color: Colors.black,
               fontSize: 15,
               fontWeight: FontWeight.w600)),

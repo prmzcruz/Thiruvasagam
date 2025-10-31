@@ -41,10 +41,8 @@ dependencies:
   #connectivity: ^3.0.6
   connectivity_plus: ^5.0.2
   fluttertoast: ^8.2.4
-#  just_audio: ^0.9.36
-#  just_audio_background: ^0.0.1-beta.11
   provider: ^6.0.5
-  audio_service: ^0.18.12
+  #audio_service: ^0.18.12
   google_fonts:
   share_plus: ^7.0.0
   flutter_background_service: ^5.0.10
@@ -55,6 +53,9 @@ dependencies:
   firebase_core: ^2.19.0
   firebase_messaging: ^14.7.1
   shared_preferences:
+  package_info:
+  device_info_plus:
+  url_launcher:
 
 
 

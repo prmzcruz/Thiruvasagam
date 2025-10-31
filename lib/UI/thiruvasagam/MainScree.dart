@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';  // Assuming you are using Provider for state management
-import 'package:thiruvasagam/UI/AudioBackground/Audioplayerprovider.dart';
-import 'package:thiruvasagam/UI/thiruvasagam/Miniplayer.dart';
+import 'package:provider/provider.dart';
 
+import '../AudioBackground/Audioplayerprovider.dart';
 import 'AudioPlayerPage.dart';
-// import 'audio_player_provider.dart';  // Import your AudioPlayerProvider here
-// import 'mini_player.dart';  // Import your MiniPlayer widget here
+import 'Miniplayer.dart';
 
 class MainScreen extends StatelessWidget {
   final Widget child;
@@ -15,40 +13,50 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // The main content of the screen
-          child,
-          // The Mini Player is conditionally shown at the bottom of the screen
-          Consumer<AudioPlayerProvider>(
-            builder: (context, audioPlayerProvider, child) {
-              return audioPlayerProvider.isMiniPlayerVisible
-                  ? Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: (){
-                    print('hello tap');
-                    print('audiourl : ${audioPlayerProvider.songURL} , id ${audioPlayerProvider.songId} thumbnail : ${audioPlayerProvider.imageUrl}');
+      body: Consumer<AudioPlayerProvider>(
+        builder: (context, audioPlayerProvider, _) {
+          final showMiniPlayer = audioPlayerProvider.isMiniPlayerVisible;
+          return Stack(
+            children: [
+              // Main content with padding if mini player is visible
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: showMiniPlayer ? 70.0 : 0.0, // leave space for mini player
+                ),
+                child: child,
+              ),
 
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> AudioPlayerPage(audioUrl: audioPlayerProvider.songURL, id: audioPlayerProvider.songId, thumblineimg: audioPlayerProvider.imageUrl)));
-                  },
-                  child: MiniPlayer(
-                    player: audioPlayerProvider.audioPlayer,
-                    songName: audioPlayerProvider.songName,  // Pass the dynamic song name
-                    imageUrl: audioPlayerProvider.imageUrl, // Pass the dynamic image URL
-                    //songDuration: audioPlayerProvider.songDuration,  // Pass the dynamic song duration
-                    onClose: audioPlayerProvider.hideMiniPlayer,
+              // Mini Player overlay
+              if (showMiniPlayer)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AudioPlayerPage(
+                            audioUrl: audioPlayerProvider.songURL,
+                            id: audioPlayerProvider.songId,
+                            thumblineimg: audioPlayerProvider.imageUrl,
+                          ),
+                        ),
+                      );
+                    },
+                    child: MiniPlayer(
+                      player: audioPlayerProvider.audioPlayer,
+                      songName: audioPlayerProvider.songName,
+                      imageUrl: audioPlayerProvider.imageUrl,
+                      onClose: audioPlayerProvider.hideMiniPlayer,
+                    ),
                   ),
                 ),
-              )
-                  : const SizedBox.shrink();
-            },
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
 }
-

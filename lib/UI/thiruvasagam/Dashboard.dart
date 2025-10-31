@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:thiruvasagam/UI/thiruvasagam/MainScree.dart';
 import 'package:thiruvasagam/UI/thiruvasagam/contentPage.dart';
@@ -10,6 +11,8 @@ import 'package:thiruvasagam/model/thiruvasagam_modelclass.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:thiruvasagam/utility/color.dart';
 import 'package:thiruvasagam/utility/utility.dart';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -23,11 +26,131 @@ class _DashboardState extends State<Dashboard> {
 
   List<Location> locations = [];
   List<String> locationNames = [];
+  String? currentBuildVersion;
+  String? PlaystoreVersion;
+  String? Playstoreurl;
 
   @override
   void initState() {
     super.initState();
+    _checkVersion();
     loadJsonData();
+  }
+
+
+
+  _checkVersion() async {
+    getVersion();
+    print("_checkVersion");
+    if (Platform.isAndroid) {
+      _checkPlayStore("com.sivavasakam.shivam");
+    }
+
+  }
+  Future getVersion() async {
+    print("version");
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      currentBuildVersion = packageInfo.version;
+    });
+  }
+
+  _checkPlayStore(String packageName) async {
+    String errorMsg;
+
+    final uri = Uri.https(
+        "play.google.com", "/store/apps/details", {"id": packageName});
+    try {
+      final response = await http.get(uri);
+      print("responsecode${response.statusCode}");
+      if (response.statusCode != 200) {
+        errorMsg =
+        "Can't find an app in the Google Play Store with the id: $packageName";
+      } else {
+        PlaystoreVersion = RegExp(r',\[\[\["([0-9,\.]*)"]],')
+            .firstMatch(response.body)
+            ?.group(1);
+        Playstoreurl = uri.toString();
+        //  newVersionAlert(context!, newVersion!, url);
+        if (PlaystoreVersion != null) {
+          if (PlaystoreVersion != currentBuildVersion) {
+            newVersionAlert(context, PlaystoreVersion!, Playstoreurl!);
+          }
+        }
+        print(
+            "PlaystoreVersion = $PlaystoreVersion,\ncurrentBuildVersion = $currentBuildVersion");
+      }
+    } catch (e) {
+      errorMsg = "$e";
+    }
+  }
+  void newVersionAlert(BuildContext context, String newVersion, String url) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => WillPopScope(
+        onWillPop: () {
+          return Future(() => false);
+        },
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          // title: Text(title + " !"),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 200,
+                child: Image.asset('assets/update.jpg'),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Update Your App.!",
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1.5),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Text(
+                "New version available $newVersion",
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 16, color: Colors.black54, wordSpacing: 1),
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    disabledForegroundColor: Colors.black,
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+                onPressed: () {
+                  openAnyUrl(url);
+                  Navigator.pop(context);
+                },
+                child: const Text("Update"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> openAnyUrl(String url) async {
+    if (!await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $url';
+    }
   }
 
   Future<void> loadJsonData() async {
@@ -62,10 +185,10 @@ class _DashboardState extends State<Dashboard> {
           children: <Widget>[
              DrawerHeader(
               decoration: BoxDecoration(
-                color: HexColor(Colorscommon.redcolor),
+                color: HexColor(Colorscommon.red),
                 //borderRadius: BorderRadius.circular(25.0,),
               ),
-              child: SingleChildScrollView(
+              child: const SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -92,7 +215,7 @@ class _DashboardState extends State<Dashboard> {
             ),
             Container(
               child: ListTile(
-                leading: Icon(Icons.home,
+                leading: const Icon(Icons.home,
                     color: Colors.red,),
                 title: const Text(
                   'Home',
@@ -178,12 +301,12 @@ class _DashboardState extends State<Dashboard> {
                     return Theme(
                       data: ThemeData.light().copyWith(
                         primaryColor: Colors.deepOrange, // Header background color
-                        colorScheme: ColorScheme.light(
+                        colorScheme: const ColorScheme.light(
                           primary: Colors.deepOrange,    // Selection color
                           onPrimary: Colors.white,       // Text color on selected date
                           surface: Colors.red, // Background for header
                         ),
-                        buttonTheme: ButtonThemeData(
+                        buttonTheme: const ButtonThemeData(
                           textTheme: ButtonTextTheme.primary, // Text color for buttons
                         ),
                       ),
@@ -282,7 +405,7 @@ class _DashboardState extends State<Dashboard> {
     return MainScreen(
       child: Scaffold(
         drawer: _buildStylishDrawer(),
-        backgroundColor: HexColor(Colorscommon.redcolor),
+        backgroundColor: HexColor(Colorscommon.red),
         body: Column(
           children: [
             Container(
@@ -299,7 +422,7 @@ class _DashboardState extends State<Dashboard> {
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
-                            fontSize: 18,
+                            fontSize: 20,
                             fontFamily: 'MeeraInimai-Regular'
                         ),
                       ),
@@ -357,9 +480,9 @@ class _DashboardState extends State<Dashboard> {
                                 );
                               },
                               child: ListTile(
-                                title: Text(location.name,style: TextStyle(
+                                title: Text(location.name,style:  TextStyle(
                                   fontFamily: 'MeeraInimai-Regular',
-                                    fontSize: 16,fontWeight: FontWeight.w600
+                                    fontSize: 18,fontWeight: FontWeight.bold,
                                 ),
                                 ),
                                 trailing:  Icon(

@@ -41,6 +41,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 
 
 Future<void> main() async{
+
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
   WidgetsFlutterBinding.ensureInitialized();
@@ -149,7 +150,7 @@ Future<void> main() async{
     );*/
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.blue, // navigation bar color
     statusBarColor: Colors.white, // status bar color
   ));
@@ -174,15 +175,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Sivavasagam',
-      theme: ThemeData(
-        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        primaryColor: Colors.white,
-        useMaterial3: true,
+    return SafeArea(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Sivavasagam',
+        theme: ThemeData(
+          //colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          primaryColor: Colors.white,
+          useMaterial3: true,
+        ),
+        home: Splashscreen(), // change this Splashscreen instead of MainLayout
       ),
-      home: Splashscreen(), // change this Splashscreen instead of MainLayout
     );
   }
 }
@@ -249,37 +252,70 @@ class _SplashscreenState extends State<Splashscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Stack(
+        children: [
+          SizedBox.expand(
+            child: Image.asset(
+              'assets/splash_img.jpeg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          const Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: Image.asset('assets/Sivavasagam.jpeg')
-                    ),
-                  ],
+                Text(
+                  'மாணிக்கவாசகர்',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontFamily: 'MeeraInimai-Regular',
+                    shadows: [
+                      Shadow(
+                        offset: Offset(2, 2),
+                        blurRadius: 6,
+                        color: Colors.black45,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Version 1.2',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'MeeraInimai-Regular',
+                    shadows: [
+                      Shadow(
+                        offset: Offset(1, 1),
+                        blurRadius: 4,
+                        color: Colors.black38,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+
     );
+
   }
   startTime() async {
     var duration = const Duration(seconds: 3);
     return Timer(duration, route);
   }
   route() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var appstatus = prefs.getBool('isLoggedIn') ?? false;
 
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const HomeScreen()));

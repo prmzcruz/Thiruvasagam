@@ -22,7 +22,7 @@ class _sub_catogoryState extends State<sub_catogory> {
       body: Column(
         children: [
           Container(
-            child: const Padding(
+            child:  Padding(
               padding: EdgeInsets.all(30),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -32,7 +32,7 @@ class _sub_catogoryState extends State<sub_catogory> {
                     child: Text(
                       'சேவைகள்',
                       style: TextStyle(
-                          color: Colors.black,
+                          color: HexColor(Colorscommon.whitecolor),
                           fontWeight: FontWeight.w600,
                           fontSize: 25,
                           fontFamily: 'MeeraInimai-Regular'),
@@ -62,9 +62,9 @@ class _sub_catogoryState extends State<sub_catogory> {
                             //     color: Colors.deepPurple),
                             title: Text(
                               category.name ?? '',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 fontFamily: 'MeeraInimai-Regular',
                               ),
                             ),

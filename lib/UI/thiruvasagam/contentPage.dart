@@ -44,18 +44,25 @@ class _ContentPageState extends State<ContentPage> {
     print('Description: ${widget.desc}');
     print('Name: ${widget.name}');
 
+
     // Wrap the content inside MainScreen
     return MainScreen(
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: HexColor(Colorscommon.red),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back,color: HexColor(Colorscommon.whitecolor),),
+          ),
           elevation: 5.0,
           title: Text(
             widget.name,
             style: const TextStyle(
-              fontSize: 17,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
               fontFamily: 'MeeraInimai-Regular',
             ),
           ),
@@ -121,9 +128,9 @@ class _ContentPageState extends State<ContentPage> {
                                       child: HtmlWidget(
                                         widget.desc,
                                         textStyle: TextStyle(
-                                          fontSize: 12 * _zoomLevel,
-                                          fontWeight: FontWeight.w500,
-                                          fontFamily: 'MeeraInimai-Regula',
+                                          fontSize: 14 * _zoomLevel,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'MeeraInimai-Regular',
                                         ),
                                       ),
                                     );
