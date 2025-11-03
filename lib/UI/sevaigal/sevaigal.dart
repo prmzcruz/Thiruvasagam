@@ -44,7 +44,7 @@ class _sevaigalState extends State<sevaigal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: HexColor(Colorscommon.red),
+      backgroundColor: HexColor(Colorscommon.whitecolor),
       body: FutureBuilder<CategoryResponse>(
         future: futureCategories,
         builder: (context, snapshot) {
@@ -59,6 +59,7 @@ class _sevaigalState extends State<sevaigal> {
             return Column(
               children: [
                 Container(
+                  color: HexColor(Colorscommon.red),
                   child:  Padding(
                     padding: EdgeInsets.all(30),
                     child: Column(
@@ -85,9 +86,11 @@ class _sevaigalState extends State<sevaigal> {
                       padding: const EdgeInsets.only(
                         left: 10,
                         right: 10,
+                          top: 16
                       ),
                       child: Card(
-                        color: Colors.white70,
+                        color: Colors.white,
+                        elevation: 5,
                         child: ListView.builder(
                           itemCount: categories.length,
                           itemBuilder: (context, index) {

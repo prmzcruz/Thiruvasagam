@@ -400,15 +400,41 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  Future<void> _shareApp() async {
+    String appLink = 'https://play.google.com/store/apps/details?id=com.sivavasakam.shivam';
+    String logoPath = 'assets/Sivavasagam.jpeg';
+
+    final tempDir = await getTemporaryDirectory();
+    final tempLogoFile = File('${tempDir.path}/Sivavasagam.jpeg');
+
+    final byteData = await DefaultAssetBundle.of(context).load(logoPath);
+    await tempLogoFile.writeAsBytes(byteData.buffer.asUint8List());
+
+    XFile logoFile = XFile(tempLogoFile.path);
+
+    Share.shareXFiles([logoFile],
+        text: 'Check out this awesome app: $appLink');
+  }
+
   @override
   Widget build(BuildContext context) {
     return MainScreen(
       child: Scaffold(
         drawer: _buildStylishDrawer(),
-        backgroundColor: HexColor(Colorscommon.red),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: HexColor(Colorscommon.red),
+          onPressed: _shareApp,
+          child: const Icon(Icons.share, color: Colors.white),
+          tooltip: "Share App",
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+        backgroundColor: HexColor(Colorscommon.whitecolor),
         body: Column(
           children: [
             Container(
+              color: HexColor(Colorscommon.red),
               child: const Padding(
                 padding: EdgeInsets.all(30),
                 child: Column(
@@ -447,11 +473,13 @@ class _DashboardState extends State<Dashboard> {
               child: Container(
                 child: Padding(
                   padding: const EdgeInsets.only(
-                    left: 0,
-                    right: 0,
+                    left: 10,
+                    right: 10,
+                    top: 16
                   ),
                   child: Card(
-                    color: Colors.white70,
+                    elevation: 5,
+                    color: Colors.white,
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.vertical,

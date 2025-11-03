@@ -18,10 +18,11 @@ class _sub_catogoryState extends State<sub_catogory> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-        backgroundColor: HexColor(Colorscommon.red),
+        backgroundColor: HexColor(Colorscommon.whitecolor),
       body: Column(
         children: [
           Container(
+            color: HexColor(Colorscommon.red),
             child:  Padding(
               padding: EdgeInsets.all(30),
               child: Column(
@@ -48,9 +49,11 @@ class _sub_catogoryState extends State<sub_catogory> {
                 padding: const EdgeInsets.only(
                   left: 10,
                   right: 10,
+                  top: 16
                 ),
                 child: Card(
-                  color: Colors.white70,
+                  color: Colors.white,
+                  elevation: 5,
                   child: ListView.builder(
                     itemCount: widget.catimages.length,
                     itemBuilder: (context, index) {
