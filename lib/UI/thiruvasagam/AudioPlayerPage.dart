@@ -313,14 +313,22 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
   }
 
   void _scrollToLyric(int index) {
-    if (index >= 0 && _scrollController.hasClients) {
-      _scrollController.animateTo(
-        (index * 30.0).clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    if (!_scrollController.hasClients) return;
+
+    const itemHeight = 40.0;
+    final containerHeight = MediaQuery.of(context).size.height * 0.60;
+
+    final centerOffset = containerHeight / 2 - itemHeight / 2;
+    final target = index * itemHeight - centerOffset;
+
+    _scrollController.animateTo(
+      target.clamp(0.0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
+
+
 
   void _setVolume(double value) {
     setState(() => _volume = value);
@@ -416,7 +424,7 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                         fontFamily: 'MeeraInimai-Regular'),
                   ),
                 ),*/
-                Container(
+                /*Container(
                   height: MediaQuery.of(context).size.height * 0.28,
                   width: MediaQuery.of(context).size.width * 1.0,
                   child: Padding(
@@ -439,7 +447,40 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                     )
                         : const SizedBox(),
                   ),
+                ),*/
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.60,
+                  margin: const EdgeInsets.all(15),
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(8),
+                        itemCount: widget.lyrics.length,
+                        itemBuilder: (context, index) {
+                          final lyric = widget.lyrics[index];
+                          bool isActive = index == _currentLyricIndex;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Text(
+                              lyric.line,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isActive ? 24 : 18,
+                                fontWeight: FontWeight.bold,
+                                color: isActive ? Colors.white : Colors.white54,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                    ],
+                  ),
                 ),
+
+
                 Slider(
                   onChanged: (value) {
                     final duration = _duration;
@@ -470,48 +511,6 @@ class _PlayerWidgetState extends State<PlayerWidget> with SingleTickerProviderSt
                         style: const TextStyle(color: Colors.white),
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.25,
-                  margin: const EdgeInsets.all(15),
-                  // decoration: BoxDecoration(
-                  //   color: Colors.black.withOpacity(0.3),
-                  //   borderRadius: BorderRadius.circular(10),
-                  // ),
-                  child: widget.lyrics.isEmpty
-                      ? Center(
-                    child: Text(
-                      "No lyrics available",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  )
-                      : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(8),
-                    itemCount: widget.lyrics.length,
-                    itemBuilder: (context, index) {
-                      final lyric = widget.lyrics[index];
-                      bool isActive = index == _currentLyricIndex;
-                      bool isPast = index < _currentLyricIndex;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        child: Text(
-                          lyric.line,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isActive ? 20 : 16,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.bold,
-                            color: isActive
-                                ? Colors.white
-                                : isPast
-                                ? Colors.black38
-                                : Colors.black,
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
                 Row(

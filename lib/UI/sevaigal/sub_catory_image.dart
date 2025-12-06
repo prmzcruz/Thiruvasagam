@@ -49,11 +49,26 @@ class sub_catogory_image extends StatelessWidget {
                 );
               },
               child: Image.network(
-                'https://sivavasagam.com/sivasadmin/storage/app/public/${image.path}',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.broken_image),
+            'https://sivavasagam.com/sivasadmin/storage/app/public/${image.path}',
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => const Icon(
+                Icons.broken_image,
+                size: 40,
               ),
+            ),
+
             );
           },
         ),

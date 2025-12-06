@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
@@ -13,6 +15,9 @@ import 'package:thiruvasagam/utility/color.dart';
 import 'package:thiruvasagam/utility/utility.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../utility/no_netwrok.dart';
+import 'package:google_play_scraper/google_play_scraper.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -33,9 +38,30 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
+    checkInternetOnStart();
     _checkVersion();
     loadJsonData();
   }
+
+  Future<void> checkInternetOnStart() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No Internet"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(builder: (_) => const NoNetworkScreen()),
+      //   );
+      // });
+    }
+  }
+
 
 
 
@@ -80,9 +106,11 @@ class _DashboardState extends State<Dashboard> {
             "PlaystoreVersion = $PlaystoreVersion,\ncurrentBuildVersion = $currentBuildVersion");
       }
     } catch (e) {
-      errorMsg = "$e";
+      print("Error: $e");
     }
   }
+
+
   void newVersionAlert(BuildContext context, String newVersion, String url) {
     showDialog(
       barrierDismissible: false,
@@ -441,6 +469,7 @@ class _DashboardState extends State<Dashboard> {
 
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    SizedBox(height: 20,),
                     Align(
                       alignment: Alignment.center,
                       child: Text(
@@ -522,7 +551,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             if (index < locations.length - 1)
                               const Padding(
-                                  padding: EdgeInsets.only(left: 0, right: 0),
+                                  padding: EdgeInsets.only(left: 0, right: 0 ),
                                   child: Divider(
                                     thickness: 0.5,
                                     color: Colors.black12,

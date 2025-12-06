@@ -8,13 +8,34 @@ import '../../model/sevaigal_modelclass.dart';
 class sub_catogory extends StatefulWidget {
   final List<CatImage> catimages;
   final List<List<CatChild>> subcatimages;
-  const sub_catogory({super.key ,required this.catimages, required this.subcatimages});
+  final String categoryname;
+  const sub_catogory({super.key ,required this.catimages, required this.subcatimages,required this.categoryname});
 
   @override
   State<sub_catogory> createState() => _sub_catogoryState();
 }
 
 class _sub_catogoryState extends State<sub_catogory> {
+
+  String _getCurrentDate() {
+    final now = DateTime.now();
+
+    final dayNameTamil = [
+      'திங்கட்கிழமை',   // Monday
+      'செவ்வாய்க்கிழமை', // Tuesday
+      'புதன்கிழமை',     // Wednesday
+      'வியாழக்கிழமை',   // Thursday
+      'வெள்ளிக்கிழமை',  // Friday
+      'சனிக்கிழமை',     // Saturday
+      'ஞாயிற்றுக்கிழமை' // Sunday
+    ][now.weekday - 1];
+
+    return "$dayNameTamil-${now.day.toString().padLeft(2, '0')}-"
+        "${now.month.toString().padLeft(2, '0')}-"
+        "${now.year}";
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -33,10 +54,24 @@ class _sub_catogoryState extends State<sub_catogory> {
                     child: Text(
                       'சேவைகள்',
                       style: TextStyle(
-                          color: HexColor(Colorscommon.whitecolor),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 25,
-                          fontFamily: 'MeeraInimai-Regular'),
+                        color: HexColor(Colorscommon.whitecolor),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 25,
+                        fontFamily: 'MeeraInimai-Regular',
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 5),
+
+                  // Show current date
+                  Text(
+                    _getCurrentDate(),     // <-- call function
+                    style: TextStyle(
+                      color: HexColor(Colorscommon.whitecolor),
+                        fontSize: 22,
+                        fontFamily: 'MeeraInimai-Regular',
+                        fontWeight: FontWeight.bold
                     ),
                   ),
                 ],
@@ -79,19 +114,20 @@ class _sub_catogoryState extends State<sub_catogory> {
                             ),
                             onTap: () {
                               final selectedCatImage = widget.catimages[index];
-                              final selectedSubCatImages = widget.subcatimages;
+                              final selectedSubCatImages = widget.subcatimages[index];
 
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => sevaigal_viewpage(
+                                    categoryName:widget.categoryname,
                                     catogoryId:selectedCatImage.id.toString() ?? '',
                                     categoryname: selectedCatImage.name ?? '',
                                     name: selectedCatImage.name ?? '',
                                     description:selectedCatImage.description ?? '',
                                     address: selectedCatImage.address ?? '',
                                     catimages: [selectedCatImage], // List<CatImage> with one item
-                                    subcatimages: selectedSubCatImages, // List<CatChild>
+                                    subcatimages: [selectedSubCatImages], // List<CatChild>
                                   ),
                                 ),
                               );

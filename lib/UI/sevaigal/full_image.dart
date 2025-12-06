@@ -62,24 +62,30 @@ class _FullImageViewerState extends State<FullImageViewer> {
       ),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 80), // avoid button overlap
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                InteractiveViewer(
+          Column(
+            children: [
+              Expanded(
+                child: InteractiveViewer(
                   panEnabled: true,
-                  minScale: 1,
-                  maxScale: 4,
-                  child: Image.network(
-                    'https://sivavasagam.com/sivasadmin/storage/app/public/${currentImage.path}',
-                    errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 100),
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: Center(
+                    child: Image.network(
+                      'https://sivavasagam.com/sivasadmin/storage/app/public/${currentImage.path}',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, size: 100),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+
+              // Description scrollable area
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.white,
+                height: 150,
+                child: SingleChildScrollView(
                   child: Text(
                     currentImage.description ?? 'No description available',
                     style: const TextStyle(
@@ -90,12 +96,12 @@ class _FullImageViewerState extends State<FullImageViewer> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 80), // extra space for button
-              ],
-            ),
+              ),
+              const SizedBox(height: 80),
+            ],
           ),
 
-          // Fixed Next & Previous buttons
+          // Fixed Buttons
           Positioned(
             left: 16,
             right: 16,
@@ -113,8 +119,9 @@ class _FullImageViewerState extends State<FullImageViewer> {
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
                 ElevatedButton(
-                  onPressed:
-                  currentIndex < widget.catimages.length - 1 ? showNextImage : null,
+                  onPressed: currentIndex < widget.catimages.length - 1
+                      ? showNextImage
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -127,6 +134,7 @@ class _FullImageViewerState extends State<FullImageViewer> {
           ),
         ],
       ),
+
     );
   }
 }

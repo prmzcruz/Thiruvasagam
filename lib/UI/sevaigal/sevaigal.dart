@@ -41,6 +41,24 @@ class _sevaigalState extends State<sevaigal> {
     }
   }
 
+  String _getCurrentDate() {
+    final now = DateTime.now();
+
+    final dayNameTamil = [
+      'திங்கட்கிழமை',   // Monday
+      'செவ்வாய்க்கிழமை', // Tuesday
+      'புதன்கிழமை',     // Wednesday
+      'வியாழக்கிழமை',   // Thursday
+      'வெள்ளிக்கிழமை',  // Friday
+      'சனிக்கிழமை',     // Saturday
+      'ஞாயிற்றுக்கிழமை' // Sunday
+    ][now.weekday - 1];
+
+    return "$dayNameTamil-${now.day.toString().padLeft(2, '0')}-"
+        "${now.month.toString().padLeft(2, '0')}-"
+        "${now.year}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +69,7 @@ class _sevaigalState extends State<sevaigal> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: Something error'));
           } else if (!snapshot.hasData || snapshot.data!.categories.isEmpty) {
             return Center(child: Text('No categories found.'));
           } else {
@@ -70,14 +88,29 @@ class _sevaigalState extends State<sevaigal> {
                           child: Text(
                             'சேவைகள்',
                             style: TextStyle(
-                                color: HexColor(Colorscommon.whitecolor),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 25,
-                              fontFamily: 'MeeraInimai-Regular',),
+                              color: HexColor(Colorscommon.whitecolor),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 25,
+                              fontFamily: 'MeeraInimai-Regular',
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 5),
+
+                        // Show current date
+                        Text(
+                          _getCurrentDate(),     // <-- call function
+                          style: TextStyle(
+                            color: HexColor(Colorscommon.whitecolor),
+                            fontSize: 22,
+                            fontFamily: 'MeeraInimai-Regular',
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ],
                     ),
+
                   ),
                 ),
                 Expanded(
@@ -127,6 +160,8 @@ class _sevaigalState extends State<sevaigal> {
                                                   subcatimages:category.catimages.map((catimage) => catimage.catChildren).toList(),
                                                 )*/
                                             sub_catogory(
+                                              categoryname:
+                                              category.fullname,
                                               catimages: category.catimages,
                                               subcatimages: category.catimages.map((catimage) => catimage.catChildren).toList(),
                                             )

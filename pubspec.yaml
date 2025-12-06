@@ -56,6 +56,7 @@ dependencies:
   package_info:
   device_info_plus:
   url_launcher:
+  google_play_scraper:
 
 
 

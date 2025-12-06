@@ -172,23 +172,37 @@ Future<void> requestNotificationPermission() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.red,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.light,
+      ),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Sivavasagam',
         theme: ThemeData(
-          //colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-          primaryColor: Colors.white,
+          primaryColor: Colors.red,
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.transparent,
+            primary: Colors.red,
+          ),
+
         ),
-        home: Splashscreen(), // change this Splashscreen instead of MainLayout
+        home: Stack(
+          children: [
+            Container(color: Colors.white),
+            const SafeArea(child: Splashscreen()),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 class MainLayout extends StatelessWidget {
   @override
@@ -261,7 +275,7 @@ class _SplashscreenState extends State<Splashscreen> {
             ),
           ),
           const Positioned(
-            bottom: 40,
+            bottom: 5,
             left: 0,
             right: 0,
             child: Column(

@@ -13,6 +13,7 @@ class sevaigal_viewpage extends StatefulWidget {
   final String address;
   final List<CatImage> catimages;
   final List<List<CatChild>> subcatimages;
+  final String categoryName;
 
   const sevaigal_viewpage(
       {super.key,
@@ -22,7 +23,7 @@ class sevaigal_viewpage extends StatefulWidget {
       required this.categoryname,
       required this.description,
       required this.catimages,
-      required this.subcatimages});
+      required this.subcatimages, required this.categoryName});
 
   @override
   State<sevaigal_viewpage> createState() => _sevaigal_viewpageState();
@@ -41,9 +42,6 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
   Widget build(BuildContext context) {
     final CatImage? firstImage =
         widget.catimages.isNotEmpty ? widget.catimages[0] : null;
-
-    final List<CatChild> subCategoryImages =
-        firstImage?.catChildren ?? [];
     final bool hasSubCatImages = allSubCatImages.isNotEmpty;
     final CatChild? firstSubCat = hasSubCatImages ? allSubCatImages.first : null;
 
@@ -100,18 +98,20 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                if(firstSubCat?.description != null)
-                Center(
-                  child: Text(
-                    'தல வரலாறு',
-                    style: TextStyle(
-                      color: HexColor(Colorscommon.blackcolor),
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'MeeraInimai-Regular',
+                if (firstSubCat?.description != null)
+                  if (widget.categoryName.contains("கோவில் உழவாரப்பணி") ||
+                      widget.categoryName.contains("மஹாகும்பாபிஷேகம்"))
+                    Center(
+                      child: Text(
+                        'தல வரலாறு',
+                        style: TextStyle(
+                          color: HexColor(Colorscommon.blackcolor),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'MeeraInimai-Regular',
+                        ),
+                      ),
                     ),
-                  ),
-                ),
                 const SizedBox(height: 10),
                 Text(
                   firstSubCat?.description ?? '',
@@ -124,6 +124,8 @@ class _sevaigal_viewpageState extends State<sevaigal_viewpage> {
                 ),
                 const SizedBox(height: 25),
                 if(firstSubCat?.address != null)
+                  if (widget.categoryName.contains("கோவில் உழவாரப்பணி") ||
+                      widget.categoryName.contains("மஹாகும்பாபிஷேகம்"))
                 Center(
                   child: Text(
                     'முகவரி',
